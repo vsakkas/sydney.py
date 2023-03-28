@@ -30,7 +30,7 @@ poetry add sydney-py
 
 ## Usage
 
-To use Syndey.py you first need to extract the `_U` cookie from [Bing](https://bing.com).
+To use Sydney.py you first need to extract the `_U` cookie from [Bing](https://bing.com).
 
 Then, set it as an environment variable:
 
@@ -38,7 +38,7 @@ Then, set it as an environment variable:
 export BING_U_COOKIE=<your-cookie>
 ```
 
-Then, you can use the provided Syndey Client:
+Then, you can use the provided Sydney Client:
 
 ```python
 import asyncio
@@ -47,14 +47,14 @@ from sydney import SydneyClient
 
 
 async def main() -> None:
-    syndey = SydneyClient()
+    sydney = SydneyClient()
 
-    await syndey.start_conversation()
+    await sydney.start_conversation()
 
-    response = await syndey.ask("Hello, how are you?")
+    response = await sydney.ask("Hello, how are you?")
     print(response["item"]["messages"][1]["text"])
 
-    await syndey.close()
+    await sydney.close()
 
 
 if __name__ == "__main__":
