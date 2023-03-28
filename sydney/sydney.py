@@ -1,13 +1,13 @@
 import json
 import os
 
-from aiohttp import ClientSession
 import websockets.client as websockets
+from aiohttp import ClientSession
 
 HEADERS = {
+    # Microsoft Edge User Agent.
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54"
 }
-COOKIES = {"_U": os.environ["BING_U_COOKIE"]}
 
 BING_CREATE_CONVESATION_URL = "https://www.bing.com/turing/conversation/create"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
@@ -35,7 +35,9 @@ class SydneyClient:
         Connect to Bing Chat API and create a new conversation.
         """
         # Use _U cookie to create a conversation.
-        session = ClientSession(headers=HEADERS, cookies=COOKIES)
+        cookies = {"_U": os.environ["BING_U_COOKIE"]}
+
+        session = ClientSession(headers=HEADERS, cookies=cookies)
         async with session.get(BING_CREATE_CONVESATION_URL) as response:
             if response.status != 200:
                 raise Exception(
@@ -105,6 +107,13 @@ class SydneyClient:
                 response = json.loads(obj)
                 if response.get("type") == 2:
                     return response
+                
+    async def reset_conversation(self) -> None:
+        """
+        Clear current conversation information and connection and start new ones.
+        """
+        await self.close()
+        await self.start_conversation()
 
     async def close(self) -> None:
         """
