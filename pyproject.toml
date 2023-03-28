@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.1.2"
+version = "0.2.0"
 description = ""
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
