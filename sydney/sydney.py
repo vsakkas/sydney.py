@@ -1,10 +1,11 @@
 import json
 import os
 
-from aiohttp import ClientSession
 import websockets.client as websockets
+from aiohttp import ClientSession
 
 HEADERS = {
+    # Microsoft Edge User Agent.
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54"
 }
 
@@ -106,6 +107,13 @@ class SydneyClient:
                 response = json.loads(obj)
                 if response.get("type") == 2:
                     return response
+                
+    async def reset_conversation(self) -> None:
+        """
+        Clear current conversation information and connection and start new ones.
+        """
+        await self.close()
+        await self.start_conversation()
 
     async def close(self) -> None:
         """
