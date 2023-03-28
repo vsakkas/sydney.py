@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
@@ -10,7 +10,6 @@ packages = [{include = "sydney"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 aiohttp = "^3.8.4"
-brotlipy = "^0.7.0"
 websockets = "^10.4"
 
 

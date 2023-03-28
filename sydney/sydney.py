@@ -5,8 +5,11 @@ import websockets.client as websockets
 from aiohttp import ClientSession
 
 HEADERS = {
-    # Microsoft Edge User Agent.
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54"
+    "Accept": "application/json",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54",
 }
 
 BING_CREATE_CONVESATION_URL = "https://www.bing.com/turing/conversation/create"
@@ -57,15 +60,23 @@ class SydneyClient:
 
         await session.close()
 
-        # Create a connection to Bing Chat API.
-        self.wss_client = await websockets.connect(BING_CHATHUB_URL)
-        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
-        await self.wss_client.send(as_json({"type": 6}))
-
     async def ask(self, prompt: str) -> str:
         """
         Send a prompt to Bing Chat API using the current conversation.
         """
+        if self.wss_client:
+            if not self.wss_client.closed:
+                await self.wss_client.close()
+        
+        # Create a connection to Bing Chat API.
+        self.wss_client = await websockets.connect(
+            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
+        )
+        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
+        await self.wss_client.recv()
+        await self.wss_client.send(as_json({"type": 6}))
+        await self.wss_client.recv()
+
         request = {
             "arguments": [
                 {
@@ -107,7 +118,7 @@ class SydneyClient:
                 response = json.loads(obj)
                 if response.get("type") == 2:
                     return response
-                
+
     async def reset_conversation(self) -> None:
         """
         Clear current conversation information and connection and start new ones.
@@ -120,8 +131,9 @@ class SydneyClient:
         Close all connections to Bing Chat API. Clear conversation information.
         """
         if self.wss_client:
-            await self.wss_client.close()
-            self.wss_client = None
+            if not self.wss_client.closed:
+                await self.wss_client.close()
+                self.wss_client = None
 
         # Clear conversation information.
         self.conversation_id = None
