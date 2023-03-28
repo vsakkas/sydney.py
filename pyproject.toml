@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "sydney-py"
+version = "0.1.2"
+description = ""
+authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "sydney"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiohttp = "^3.8.4"
+brotlipy = "^0.7.0"
+websockets = "^10.4"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
