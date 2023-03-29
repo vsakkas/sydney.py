@@ -1,5 +1,6 @@
 import json
 import os
+from enum import Enum
 
 import websockets.client as websockets
 from aiohttp import ClientSession
@@ -25,17 +26,41 @@ def as_json(message: dict) -> str:
     return json.dumps(message) + RECORD_SEPARATOR
 
 
+class ConversationStyle(Enum):
+    """
+    Bing Chat conversation styles. Supported options are:
+    - `creative` for original and imaginative chat
+    - `balanced` for informative and friendly chat
+    - `precise` for concise and straightforward chat
+    """
+
+    creative = "h3relaxedimg"
+    balanced = "galileo"
+    precise = "h3precise"
+
+
 class SydneyClient:
     def __init__(self) -> None:
-        self.conversation_id = None
-        self.client_id = None
-        self.conversation_signature = None
-        self.invocation_id = None
+        self.conversation_id: str = None
+        self.client_id: str = None
+        self.conversation_signature: str = None
+        self.invocation_id: str = None
+        self.conversation_style: ConversationStyle = None
         self.wss_client = None
 
-    async def start_conversation(self) -> None:
+    async def start_conversation(self, style: str = "balanced") -> None:
         """
         Connect to Bing Chat and create a new conversation.
+
+        Parameters
+        ----------
+        style : str
+            The conversation style that Bing Chat will adopt. Supported options are:
+            - `creative` for original and imaginative chat
+            - `balanced` for informative and friendly chat
+            - `precise` for concise and straightforward chat
+
+            Default is "balanced".
         """
         # Use _U cookie to create a conversation.
         cookies = {"_U": os.environ["BING_U_COOKIE"]}
@@ -57,6 +82,7 @@ class SydneyClient:
             self.client_id = response_dict["clientId"]
             self.conversation_signature = response_dict["conversationSignature"]
             self.invocation_id = 0
+            self.conversation_style = getattr(ConversationStyle, style)
 
         await session.close()
 
@@ -89,8 +115,6 @@ class SydneyClient:
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
-        await self.wss_client.send(as_json({"type": 6}))
-        await self.wss_client.recv()
 
         request = {
             "arguments": [
@@ -103,6 +127,7 @@ class SydneyClient:
                         "disable_emoji_spoken_text",
                         "responsible_ai_policy_235",
                         "enablemm",
+                        self.conversation_style.value,
                     ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
@@ -161,3 +186,4 @@ class SydneyClient:
         self.client_id = None
         self.conversation_signature = None
         self.invocation_id = None
+        self.conversation_style = None

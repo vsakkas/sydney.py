@@ -1,6 +1,6 @@
 # Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.4.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.5.0)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -49,7 +49,7 @@ from sydney import SydneyClient
 async def main() -> None:
     sydney = SydneyClient()
 
-    await sydney.start_conversation()
+    await sydney.start_conversation(style="balanced")
 
     response = await sydney.ask("Hello, how are you?")
     print(response)
