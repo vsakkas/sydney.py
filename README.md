@@ -52,14 +52,13 @@ async def main() -> None:
     await sydney.start_conversation()
 
     response = await sydney.ask("Hello, how are you?")
-    print(response["item"]["messages"][1]["text"])
+    print(response)
 
     await sydney.close()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 ```
 
 ## License
