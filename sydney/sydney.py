@@ -135,12 +135,26 @@ class SydneyClient:
                         ][0]["text"]
                     return response["item"]["messages"][1]["text"]
 
-    async def reset_conversation(self) -> None:
+    async def reset_conversation(self, style: str = None) -> None:
         """
         Clear current conversation information and connection and start new ones.
+
+        Parameters
+        ----------
+        style : str
+            The conversation style that Bing Chat will adopt. Supported options are:
+            - `creative` for original and imaginative chat
+            - `balanced` for informative and friendly chat
+            - `precise` for concise and straightforward chat
+            If None, the new conversation will use the same conversation style as the
+            current conversation.
+
+            Default is None.
         """
+        new_style = style if style else self.conversation_style
+
         await self.close()
-        await self.start_conversation()
+        await self.start_conversation(style=new_style)
 
     async def close(self) -> None:
         """
