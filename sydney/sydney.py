@@ -35,7 +35,7 @@ class SydneyClient:
 
     async def start_conversation(self) -> None:
         """
-        Connect to Bing Chat API and create a new conversation.
+        Connect to Bing Chat and create a new conversation.
         """
         # Use _U cookie to create a conversation.
         cookies = {"_U": os.environ["BING_U_COOKIE"]}
@@ -60,15 +60,30 @@ class SydneyClient:
 
         await session.close()
 
-    async def ask(self, prompt: str) -> str:
+    async def ask(self, prompt: str, citations: bool = False, raw: bool = False) -> str:
         """
-        Send a prompt to Bing Chat API using the current conversation.
+        Send a prompt to Bing Chat using the current conversation.
+
+        Parameters
+        ----------
+        prompt : str
+            The prompt that needs to be sent to Bing Chat.
+        citations : bool, optional
+            Whether to return any cited text. Default is False.
+        raw : bool, optional
+            Whether to return the entire response object in raw JSON format. Default is False.
+
+        Returns
+        -------
+        str
+            The text response from Bing Chat. If citations is True, the function returns the cited text.
+            If raw is True, the function returns the entire response object in raw JSON format.
         """
         if self.wss_client:
             if not self.wss_client.closed:
                 await self.wss_client.close()
-        
-        # Create a connection to Bing Chat API.
+
+        # Create a connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
         )
@@ -117,7 +132,13 @@ class SydneyClient:
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 2:
-                    return response
+                    if raw:
+                        return response
+                    if citations:
+                        return response["item"]["messages"][1]["adaptiveCards"][0][
+                            "body"
+                        ][0]["text"]
+                    return response["item"]["messages"][1]["text"]
 
     async def reset_conversation(self) -> None:
         """
@@ -128,7 +149,7 @@ class SydneyClient:
 
     async def close(self) -> None:
         """
-        Close all connections to Bing Chat API. Clear conversation information.
+        Close all connections to Bing Chat. Clear conversation information.
         """
         if self.wss_client:
             if not self.wss_client.closed:
