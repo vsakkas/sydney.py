@@ -55,7 +55,7 @@ class SydneyClient:
         Parameters
         ----------
         style : str
-            The conversatin style that Bing Chat will adopt. Supported options are:
+            The conversation style that Bing Chat will adopt. Supported options are:
             - `creative` for original and imaginative chat
             - `balanced` for informative and friendly chat
             - `precise` for concise and straightforward chat
