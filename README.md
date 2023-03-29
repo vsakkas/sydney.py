@@ -49,7 +49,7 @@ from sydney import SydneyClient
 async def main() -> None:
     sydney = SydneyClient()
 
-    await sydney.start_conversation()
+    await sydney.start_conversation(style="balanced")
 
     response = await sydney.ask("Hello, how are you?")
     print(response)
