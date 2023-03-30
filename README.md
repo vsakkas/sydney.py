@@ -54,7 +54,7 @@ async def main() -> None:
     response = await sydney.ask("Hello, how are you?")
     print(response)
 
-    await sydney.close()
+    await sydney.close_conversation()
 
 
 if __name__ == "__main__":

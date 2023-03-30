@@ -153,10 +153,10 @@ class SydneyClient:
         """
         new_style = style if style else self.conversation_style
 
-        await self.close()
+        await self.close_conversation()
         await self.start_conversation(style=new_style)
 
-    async def close(self) -> None:
+    async def close_conversation(self) -> None:
         """
         Close all connections to Bing Chat. Clear conversation information.
         """
