@@ -18,6 +18,90 @@ class SydneyClient:
         self.conversation_style: ConversationStyle = None
         self.wss_client = None
 
+    def _build_request_arguments(self, prompt: str) -> dict:
+        return {
+            "arguments": [
+                {
+                    "source": "cib",
+                    "optionsSets": [
+                        "nlu_direct_response_filter",
+                        "deepleo",
+                        "enable_debug_commands",
+                        "disable_emoji_spoken_text",
+                        "responsible_ai_policy_235",
+                        "enablemm",
+                        self.conversation_style.value,
+                    ],
+                    "isStartOfSession": self.invocation_id == 0,
+                    "message": {
+                        "author": "user",
+                        "inputMethod": "Keyboard",
+                        "text": prompt,
+                        "messageType": "Chat",
+                    },
+                    "conversationSignature": self.conversation_signature,
+                    "participant": {
+                        "id": self.client_id,
+                    },
+                    "conversationId": self.conversation_id,
+                }
+            ],
+            "invocationId": str(self.invocation_id),
+            "target": "chat",
+            "type": 4,
+        }
+
+    async def _ask(
+        self,
+        prompt: str,
+        citations: bool = False,
+        raw: bool = False,
+        stream: bool = False,
+    ) -> str | dict:
+        if self.wss_client:
+            if not self.wss_client.closed:
+                await self.wss_client.close()
+
+        # Create a connection Bing Chat.
+        self.wss_client = await websockets.connect(
+            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
+        )
+        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
+        await self.wss_client.recv()
+
+        request = self._build_request_arguments(prompt)
+        self.invocation_id += 1
+
+        await self.wss_client.send(as_json(request))
+
+        while True:
+            objects = str(await self.wss_client.recv()).split(DELIMETER)
+            for obj in objects:
+                if not obj:
+                    continue
+                response = json.loads(obj)
+                # Handle type 1 messages when streaming is enabled.
+                if (
+                    stream
+                    and response.get("type") == 1
+                    and response["arguments"][0].get("messages")
+                ):
+                    if raw:
+                        yield response
+                    elif citations:
+                        yield response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
+                    else:
+                        yield response["arguments"][0]["messages"][0]["text"]
+                # Handle type 2 messages.
+                elif response.get("type") == 2:
+                    if raw:
+                        yield response
+                    if citations:
+                        yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+                    yield response["item"]["messages"][1]["text"]
+                    # Exit, type 2 is the last message.
+                    return
+
     async def start_conversation(self, style: str = "balanced") -> None:
         """
         Connect to Bing Chat and create a new conversation.
@@ -56,9 +140,14 @@ class SydneyClient:
 
         await session.close()
 
-    async def ask(self, prompt: str, citations: bool = False, raw: bool = False) -> str:
+    async def ask(
+        self,
+        prompt: str,
+        citations: bool = False,
+        raw: bool = False,
+    ) -> str | dict:
         """
-        Send a prompt to Bing Chat using the current conversation.
+        Send a prompt to Bing Chat using the current conversation and return the answer.
 
         Parameters
         ----------
@@ -75,65 +164,35 @@ class SydneyClient:
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
         """
-        if self.wss_client:
-            if not self.wss_client.closed:
-                await self.wss_client.close()
+        async for response in self._ask(prompt, citations, raw, stream=False):
+            return response
 
-        # Create a connection Bing Chat.
-        self.wss_client = await websockets.connect(
-            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
-        )
-        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
-        await self.wss_client.recv()
+    async def ask_stream(
+        self,
+        prompt: str,
+        citations: bool = False,
+        raw: bool = False,
+    ) -> str | dict:
+        """
+        Send a prompt to Bing Chat using the current conversation and stream the answer.
 
-        request = {
-            "arguments": [
-                {
-                    "source": "cib",
-                    "optionsSets": [
-                        "nlu_direct_response_filter",
-                        "deepleo",
-                        "enable_debug_commands",
-                        "disable_emoji_spoken_text",
-                        "responsible_ai_policy_235",
-                        "enablemm",
-                        self.conversation_style.value,
-                    ],
-                    "isStartOfSession": self.invocation_id == 0,
-                    "message": {
-                        "author": "user",
-                        "inputMethod": "Keyboard",
-                        "text": prompt,
-                        "messageType": "Chat",
-                    },
-                    "conversationSignature": self.conversation_signature,
-                    "participant": {
-                        "id": self.client_id,
-                    },
-                    "conversationId": self.conversation_id,
-                }
-            ],
-            "invocationId": str(self.invocation_id),
-            "target": "chat",
-            "type": 4,
-        }
-        self.invocation_id += 1
+        Parameters
+        ----------
+        prompt : str
+            The prompt that needs to be sent to Bing Chat.
+        citations : bool, optional
+            Whether to return any cited text. Default is False.
+        raw : bool, optional
+            Whether to return the entire response object in raw JSON format. Default is False.
 
-        await self.wss_client.send(as_json(request))
-        while True:
-            objects = str(await self.wss_client.recv()).split(DELIMETER)
-            for obj in objects:
-                if not obj:
-                    continue
-                response = json.loads(obj)
-                if response.get("type") == 2:
-                    if raw:
-                        return response
-                    if citations:
-                        return response["item"]["messages"][1]["adaptiveCards"][0][
-                            "body"
-                        ][0]["text"]
-                    return response["item"]["messages"][1]["text"]
+        Returns
+        -------
+        str
+            The text response from Bing Chat. If citations is True, the function returns the cited text.
+            If raw is True, the function returns the entire response object in raw JSON format.
+        """
+        async for response in self._ask(prompt, citations, raw, stream=True):
+            yield response
 
     async def reset_conversation(self, style: str = None) -> None:
         """
