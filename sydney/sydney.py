@@ -74,7 +74,8 @@ class SydneyClient:
 
         await self.wss_client.send(as_json(request))
 
-        while True:
+        streaming = True
+        while streaming:
             objects = str(await self.wss_client.recv()).split(DELIMETER)
             for obj in objects:
                 if not obj:
@@ -99,8 +100,9 @@ class SydneyClient:
                     if citations:
                         yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
                     yield response["item"]["messages"][1]["text"]
+                    
                     # Exit, type 2 is the last message.
-                    return
+                    streaming = False
 
     async def start_conversation(self, style: str = "balanced") -> None:
         """
