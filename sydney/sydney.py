@@ -210,7 +210,7 @@ class SydneyClient:
 
             Default is None.
         """
-        new_style = style if style else self.conversation_style
+        new_style = style if style else self.conversation_style.name
 
         await self.close_conversation()
         await self.start_conversation(style=new_style)
