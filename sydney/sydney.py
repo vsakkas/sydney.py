@@ -58,10 +58,6 @@ class SydneyClient:
         raw: bool = False,
         stream: bool = False,
     ) -> str | dict:
-        if self.wss_client:
-            if not self.wss_client.closed:
-                await self.wss_client.close()
-
         # Create a connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
@@ -74,7 +70,8 @@ class SydneyClient:
 
         await self.wss_client.send(as_json(request))
 
-        while True:
+        streaming = True
+        while streaming:
             objects = str(await self.wss_client.recv()).split(DELIMETER)
             for obj in objects:
                 if not obj:
@@ -99,8 +96,11 @@ class SydneyClient:
                     if citations:
                         yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
                     yield response["item"]["messages"][1]["text"]
+
                     # Exit, type 2 is the last message.
-                    return
+                    streaming = False
+
+        await self.wss_client.close()
 
     async def start_conversation(self, style: str = "balanced") -> None:
         """
