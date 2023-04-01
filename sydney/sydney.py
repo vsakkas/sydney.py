@@ -176,8 +176,8 @@ class SydneyClient:
         """
         Send a prompt to Bing Chat using the current conversation and stream the answer.
 
-        If only a text response is returned, then only new words/tokens are returned. This
-        is because by default Bing Chat streams all previous words/tokens along new ones.
+        By default, Bing Chat returns all previous tokens along with new ones. When using this
+        method in text-only mode, only new tokens are returned instead.
 
         Parameters
         ----------
