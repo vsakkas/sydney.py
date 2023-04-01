@@ -54,6 +54,12 @@ async def main() -> None:
     response = await sydney.ask("Hello, how are you?")
     print(response)
 
+    await sydney.reset_conversation()
+
+    prompt = "What's today's weather forecast?"
+    async for response in sydney.ask_stream(prompt, citations=True):
+        print(response, end="", flush=True)
+
     await sydney.close_conversation()
 
 
