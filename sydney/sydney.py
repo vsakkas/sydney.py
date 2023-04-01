@@ -176,6 +176,9 @@ class SydneyClient:
         """
         Send a prompt to Bing Chat using the current conversation and stream the answer.
 
+        By default, Bing Chat returns all previous tokens along with new ones. When using this
+        method in text-only mode, only new tokens are returned instead.
+
         Parameters
         ----------
         prompt : str
@@ -191,8 +194,15 @@ class SydneyClient:
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
         """
+        previous_response = ""
         async for response in self._ask(prompt, citations, raw, stream=True):
-            yield response
+            if raw:
+                yield response
+            # For text-only responses, return only newly streamed tokens.
+            else:
+                new_response = response[len(previous_response):]
+                previous_response = response
+                yield new_response
 
     async def reset_conversation(self, style: str = None) -> None:
         """
