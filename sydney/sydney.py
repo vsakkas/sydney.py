@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 import os
+from typing import AsyncGenerator
 
 import websockets.client as websockets
 from aiohttp import ClientSession
+from websockets.client import WebSocketClientProtocol
 
 from .constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
 from .enums import ComposeFormat, ComposeLength, ComposeTone, ConversationStyle
@@ -23,11 +25,11 @@ class SydneyClient:
             in the `ConversationStyle` enum. Default is "balanced".
         """
         self.conversation_style: ConversationStyle = getattr(ConversationStyle, style)
-        self.conversation_signature: str = None
-        self.conversation_id: str = None
-        self.client_id: str = None
-        self.invocation_id: str = None
-        self.wss_client = None
+        self.conversation_signature: str | None = None
+        self.conversation_id: str | None = None
+        self.client_id: str | None = None
+        self.invocation_id: int | None = None
+        self.wss_client: WebSocketClientProtocol | None = None
 
     async def __aenter__(self) -> SydneyClient:
         await self.start_conversation()
@@ -114,7 +116,7 @@ class SydneyClient:
         citations: bool = False,
         raw: bool = False,
         stream: bool = False,
-    ) -> str | dict:
+    ) -> AsyncGenerator[str | dict, None]:
         # Create a connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
@@ -167,7 +169,7 @@ class SydneyClient:
         length: ComposeLength,
         raw: bool,
         stream: bool,
-    ) -> str | dict:
+    ) -> AsyncGenerator[str | dict, None]:
         # Create a connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
@@ -267,7 +269,7 @@ class SydneyClient:
         prompt: str,
         citations: bool = False,
         raw: bool = False,
-    ) -> str | dict:
+    ) -> AsyncGenerator[str | dict, None]:
         """
         Send a prompt to Bing Chat using the current conversation and stream the answer.
 
@@ -350,7 +352,7 @@ class SydneyClient:
         format: str = "paragraph",
         length: str = "short",
         raw: bool = False,
-    ) -> str | dict:
+    ) -> AsyncGenerator[str | dict, None]:
         """
         Send a prompt to Bing Chat, compose and stream text based on the given prompt, tone,
         format, and length.
@@ -397,7 +399,7 @@ class SydneyClient:
                 previous_response = response
                 yield new_response
 
-    async def reset_conversation(self, style: str = None) -> None:
+    async def reset_conversation(self, style: str | None = None) -> None:
         """
         Clear current conversation information and connection and start new ones.
 
