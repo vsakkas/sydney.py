@@ -47,14 +47,14 @@ from sydney import SydneyClient
 
 
 async def main() -> None:
-    sydney = SydneyClient()
+    sydney = SydneyClient(style="balanced")
 
-    await sydney.start_conversation(style="balanced")
+    await sydney.start_conversation()
 
     response = await sydney.ask("Hello, how are you?")
     print(response)
 
-    await sydney.reset_conversation()
+    await sydney.reset_conversation(style="precise")
 
     prompt = "What's today's weather forecast?"
     async for response in sydney.ask_stream(prompt, citations=True):
@@ -76,14 +76,9 @@ from sydney import SydneyClient
 
 
 async def main() -> None:
-    sydney = SydneyClient()
-
-    await sydney.start_conversation()
-
-    response = await sydney.compose("Why Python is a great language", format="ideas")
-    print(response)
-
-    await sydney.close_conversation()
+    async with SydneyClient() as sydney:
+        response = await sydney.compose("Why Python is a great language", format="ideas")
+        print(response)
 
 
 if __name__ == "__main__":
