@@ -9,7 +9,13 @@ from aiohttp import ClientSession
 from websockets.client import WebSocketClientProtocol
 
 from .constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
-from .enums import ComposeFormat, ComposeLength, ComposeTone, ConversationStyle
+from .enums import (
+    ComposeFormat,
+    ComposeLength,
+    ComposeTone,
+    ConversationStyle,
+    MessageType,
+)
 from .utils import as_json
 
 
@@ -46,10 +52,10 @@ class SydneyClient:
                     "optionsSets": [
                         "nlu_direct_response_filter",
                         "deepleo",
-                        "enable_debug_commands",
                         "disable_emoji_spoken_text",
                         "responsible_ai_policy_235",
                         "enablemm",
+                        "dv3sugg",
                         self.conversation_style.value,
                     ],
                     "isStartOfSession": self.invocation_id == 0,
@@ -57,7 +63,7 @@ class SydneyClient:
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
-                        "messageType": "Chat",
+                        "messageType": MessageType.chat.value,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -98,7 +104,7 @@ class SydneyClient:
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. The generated text should follow these characteristics: tone: *{tone.value}*, length: *{length.value}*, format: *{format.value}*. The keywords are: `{prompt}`.",
-                        "messageType": "Chat",
+                        "messageType": MessageType.chat.value,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {"id": self.client_id},

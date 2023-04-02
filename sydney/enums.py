@@ -57,3 +57,30 @@ class ComposeLength(Enum):
     short = "short"
     medium = "medium"
     long = "long"
+
+
+class MessageType(Enum):
+    """
+    Allowed message types. Supported options are:
+    - `Chat`
+    - `InternalSearchQuery`
+    - `InternalSearchResult`
+    - `Disengaged`
+    - `InternalLoaderMessage`
+    - `RenderCardRequest`
+    - `AdsQuery`
+    - `SemanticSerp`
+    - `GenerateContentQuery`
+    - `SearchQuery`
+    """
+
+    chat = "Chat"
+    internal_search_query = "InternalSearchQuery"
+    internal_search_result = "InternalSearchResult"
+    disengaged = "Disengaged"
+    internal_loader_message = "InternalLoaderMessage"
+    render_card_request = "RenderCardRequest"
+    ads_query = "AdsQuery"
+    semantic_serp = "SemanticSerp"
+    generate_content_query = "GenerateContentQuery"
+    search_query = "SearchQuery"
