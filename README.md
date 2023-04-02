@@ -67,6 +67,31 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+The Sydney Client also supports the Compose feature:
+
+```python
+import asyncio
+
+from sydney import SydneyClient
+
+
+async def main() -> None:
+    sydney = SydneyClient()
+
+    await sydney.start_conversation()
+
+    response = await sydney.compose("Why Python is a great language", format="ideas")
+    print(response)
+
+    await sydney.close_conversation()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+For more detailed documentation and options, please refer to the code docstrings.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/vsakkas/sydney.py/blob/master/LICENSE) file for details.
