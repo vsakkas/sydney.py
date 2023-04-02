@@ -1,6 +1,6 @@
 # Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.7.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.8.0)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -66,6 +66,31 @@ async def main() -> None:
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+The Sydney Client also supports the Compose feature:
+
+```python
+import asyncio
+
+from sydney import SydneyClient
+
+
+async def main() -> None:
+    sydney = SydneyClient()
+
+    await sydney.start_conversation()
+
+    response = await sydney.compose("Why Python is a great language", format="ideas")
+    print(response)
+
+    await sydney.close_conversation()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+For more detailed documentation and options, please refer to the code docstrings.
 
 ## License
 

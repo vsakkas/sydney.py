@@ -5,7 +5,7 @@ import websockets.client as websockets
 from aiohttp import ClientSession
 
 from .constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
-from .enums import ConversationStyle
+from .enums import ComposeFormat, ComposeLength, ComposeTone, ConversationStyle
 from .utils import as_json
 
 
@@ -18,7 +18,7 @@ class SydneyClient:
         self.conversation_style: ConversationStyle = None
         self.wss_client = None
 
-    def _build_request_arguments(self, prompt: str) -> dict:
+    def _build_ask_arguments(self, prompt: str) -> dict:
         return {
             "arguments": [
                 {
@@ -51,6 +51,45 @@ class SydneyClient:
             "type": 4,
         }
 
+    def _build_compose_arguments(
+        self,
+        prompt: str,
+        tone: ComposeTone,
+        format: ComposeFormat,
+        length: ComposeLength,
+    ) -> dict:
+        return {
+            "arguments": [
+                {
+                    "source": "cib",
+                    "optionsSets": [
+                        "nlu_direct_response_filter",
+                        "deepleo",
+                        "enable_debug_commands",
+                        "disable_emoji_spoken_text",
+                        "responsible_ai_policy_235",
+                        "enablemm",
+                        "h3imaginative",
+                        "nocache",
+                        "nosugg",
+                    ],
+                    "isStartOfSession": self.invocation_id == 0,
+                    "message": {
+                        "author": "user",
+                        "inputMethod": "Keyboard",
+                        "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. The generated text should follow these characteristics: tone: *{tone.value}*, length: *{length.value}*, format: *{format.value}*. The keywords are: `{prompt}`.",
+                        "messageType": "Chat",
+                    },
+                    "conversationSignature": self.conversation_signature,
+                    "participant": {"id": self.client_id},
+                    "conversationId": self.conversation_id,
+                }
+            ],
+            "invocationId": str(self.invocation_id),
+            "target": "chat",
+            "type": 4,
+        }
+
     async def _ask(
         self,
         prompt: str,
@@ -65,7 +104,7 @@ class SydneyClient:
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
 
-        request = self._build_request_arguments(prompt)
+        request = self._build_ask_arguments(prompt)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
@@ -102,6 +141,55 @@ class SydneyClient:
 
         await self.wss_client.close()
 
+    async def _compose(
+        self,
+        prompt: str,
+        tone: ComposeTone,
+        format: ComposeFormat,
+        length: ComposeLength,
+        raw: bool,
+        stream: bool,
+    ) -> str | dict:
+        # Create a connection Bing Chat.
+        self.wss_client = await websockets.connect(
+            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
+        )
+        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
+        await self.wss_client.recv()
+
+        request = self._build_compose_arguments(prompt, tone, format, length)
+        self.invocation_id += 1
+
+        await self.wss_client.send(as_json(request))
+
+        streaming = True
+        while streaming:
+            objects = str(await self.wss_client.recv()).split(DELIMETER)
+            for obj in objects:
+                if not obj:
+                    continue
+                response = json.loads(obj)
+                # Handle type 1 messages when streaming is enabled.
+                if (
+                    stream
+                    and response.get("type") == 1
+                    and response["arguments"][0].get("messages")
+                ):
+                    if raw:
+                        yield response
+                    else:
+                        yield response["arguments"][0]["messages"][0]["text"]
+                # Handle type 2 messages.
+                elif response.get("type") == 2:
+                    if raw:
+                        yield response
+                    yield response["item"]["messages"][1]["text"]
+
+                    # Exit, type 2 is the last message.
+                    streaming = False
+
+        await self.wss_client.close()
+
     async def start_conversation(self, style: str = "balanced") -> None:
         """
         Connect to Bing Chat and create a new conversation.
@@ -109,12 +197,8 @@ class SydneyClient:
         Parameters
         ----------
         style : str
-            The conversation style that Bing Chat will adopt. Supported options are:
-            - `creative` for original and imaginative chat
-            - `balanced` for informative and friendly chat
-            - `precise` for concise and straightforward chat
-
-            Default is "balanced".
+            The conversation style that Bing Chat will adopt. Must be one of the options listed
+            in the `ConversationStyle` enum. Default is "balanced".
         """
         # Use _U cookie to create a conversation.
         cookies = {"_U": os.environ["BING_U_COOKIE"]}
@@ -200,7 +284,105 @@ class SydneyClient:
                 yield response
             # For text-only responses, return only newly streamed tokens.
             else:
-                new_response = response[len(previous_response):]
+                new_response = response[len(previous_response) :]
+                previous_response = response
+                yield new_response
+
+    async def compose(
+        self,
+        prompt: str,
+        tone: str = "professional",
+        format: str = "paragraph",
+        length: str = "short",
+        raw: bool = False,
+    ) -> str | dict:
+        """
+        Send a prompt to Bing Chat and compose text based on the given prompt, tone,
+        format, and length.
+
+        Parameters
+        ----------
+        prompt : str
+            The prompt that needs to be sent to Bing Chat.
+        tone : str, optional
+            The tone of the response. Must be one of the options listed in the `ComposeTone`
+            enum. Default is "professional".
+        format : str, optional
+            The format of the response. Must be one of the options listed in the `ComposeFormat`
+            enum. Default is "paragraph".
+        length : str, optional
+            The length of the response. Must be one of the options listed in the `ComposeLength`
+            enum. Default is "short".
+        raw : bool, optional
+            Whether to return the entire response object in raw JSON format. Default is False.
+
+        Returns
+        -------
+        str or dict
+            The response from Bing Chat. If raw is True, the function returns the entire response
+            object in raw JSON format.
+        """
+        # Get the enum values corresponding to the given tone, format, and length.
+        compose_tone = getattr(ComposeTone, tone)
+        compose_format = getattr(ComposeFormat, format)
+        compose_length = getattr(ComposeLength, length)
+
+        async for response in self._compose(
+            prompt, compose_tone, compose_format, compose_length, raw, stream=False
+        ):
+            return response
+
+    async def compose_stream(
+        self,
+        prompt: str,
+        tone: str = "professional",
+        format: str = "paragraph",
+        length: str = "short",
+        raw: bool = False,
+    ) -> str | dict:
+        """
+        Send a prompt to Bing Chat, compose and stream text based on the given prompt, tone,
+        format, and length.
+
+        By default, Bing Chat returns all previous tokens along with new ones. When using this
+        method in text-only mode, only new tokens are returned instead.
+
+        Parameters
+        ----------
+        prompt : str
+            The prompt that needs to be sent to Bing Chat.
+        tone : str, optional
+            The tone of the response. Must be one of the options listed in the `ComposeTone`
+            enum. Default is "professional".
+        format : str, optional
+            The format of the response. Must be one of the options listed in the `ComposeFormat`
+            enum. Default is "paragraph".
+        length : str, optional
+            The length of the response. Must be one of the options listed in the `ComposeLength`
+            enum. Default is "short".
+        raw : bool, optional
+            Whether to return the entire response object in raw JSON format. Default is False.
+
+        Returns
+        -------
+        str or dict
+            The response from Bing Chat. If raw is True, the function returns the entire response
+            object in raw JSON format.
+        """
+        # Get the enum values corresponding to the given tone, format, and length.
+        compose_tone = getattr(ComposeTone, tone)
+        compose_format = getattr(ComposeFormat, format)
+        compose_length = getattr(ComposeLength, length)
+
+        previous_response = ""
+        async for response in self._compose(
+            prompt, compose_tone, compose_format, compose_length, raw, stream=True
+        ):
+            if raw:
+                yield response
+            # For text-only responses, return only newly streamed tokens.
+            else:
+                new_response = response[len(previous_response) :]
                 previous_response = response
                 yield new_response
 
