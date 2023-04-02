@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 
@@ -10,13 +12,29 @@ from .utils import as_json
 
 
 class SydneyClient:
-    def __init__(self) -> None:
+    def __init__(self, style: str = "balanced") -> None:
+        """
+        Client for Bing Chat.
+
+        Parameters
+        ----------
+        style : str
+            The conversation style that Bing Chat will adopt. Must be one of the options listed
+            in the `ConversationStyle` enum. Default is "balanced".
+        """
+        self.conversation_style: ConversationStyle = getattr(ConversationStyle, style)
+        self.conversation_signature: str = None
         self.conversation_id: str = None
         self.client_id: str = None
-        self.conversation_signature: str = None
         self.invocation_id: str = None
-        self.conversation_style: ConversationStyle = None
         self.wss_client = None
+
+    async def __aenter__(self) -> SydneyClient:
+        await self.start_conversation()
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback) -> None:
+        await self.close_conversation()
 
     def _build_ask_arguments(self, prompt: str) -> dict:
         return {
@@ -190,15 +208,9 @@ class SydneyClient:
 
         await self.wss_client.close()
 
-    async def start_conversation(self, style: str = "balanced") -> None:
+    async def start_conversation(self) -> None:
         """
         Connect to Bing Chat and create a new conversation.
-
-        Parameters
-        ----------
-        style : str
-            The conversation style that Bing Chat will adopt. Must be one of the options listed
-            in the `ConversationStyle` enum. Default is "balanced".
         """
         # Use _U cookie to create a conversation.
         cookies = {"_U": os.environ["BING_U_COOKIE"]}
@@ -220,7 +232,6 @@ class SydneyClient:
             self.client_id = response_dict["clientId"]
             self.conversation_signature = response_dict["conversationSignature"]
             self.invocation_id = 0
-            self.conversation_style = getattr(ConversationStyle, style)
 
         await session.close()
 
@@ -402,10 +413,11 @@ class SydneyClient:
 
             Default is None.
         """
-        new_style = style if style else self.conversation_style.name
-
         await self.close_conversation()
-        await self.start_conversation(style=new_style)
+        self.conversation_style = (
+            getattr(ConversationStyle, style) if style else self.conversation_style
+        )
+        await self.start_conversation()
 
     async def close_conversation(self) -> None:
         """
@@ -421,4 +433,3 @@ class SydneyClient:
         self.client_id = None
         self.conversation_signature = None
         self.invocation_id = None
-        self.conversation_style = None
