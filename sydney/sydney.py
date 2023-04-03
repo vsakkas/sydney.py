@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import json
-import os
+from os import environ
 from typing import AsyncGenerator
 
 import websockets.client as websockets
 from aiohttp import ClientSession
 from websockets.client import WebSocketClientProtocol
 
-from sydney.constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
+from sydney.constants import (
+    BING_CHATHUB_URL,
+    BING_CREATE_CONVESATION_URL,
+    DELIMETER,
+    HEADERS,
+)
 from sydney.enums import (
     ComposeFormat,
     ComposeLength,
@@ -20,7 +25,9 @@ from sydney.utils import as_json
 
 
 class SydneyClient:
-    def __init__(self, style: str = "balanced") -> None:
+    def __init__(
+        self, style: str = "balanced", bing_u_cookie: str | None = None
+    ) -> None:
         """
         Client for Bing Chat.
 
@@ -29,7 +36,13 @@ class SydneyClient:
         style : str
             The conversation style that Bing Chat will adopt. Must be one of the options listed
             in the `ConversationStyle` enum. Default is "balanced".
+        bing_u_cookie: str | None
+            The _U cookie from Bing required to connect and use Bing Chat. If not provided,
+            the `BING_U_COOKIE` environment variable is loaded instead. Default is None.
         """
+        self.bing_u_cookie = (
+            bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
+        )
         self.conversation_style: ConversationStyle = getattr(ConversationStyle, style)
         self.conversation_signature: str | None = None
         self.conversation_id: str | None = None
@@ -221,7 +234,7 @@ class SydneyClient:
         Connect to Bing Chat and create a new conversation.
         """
         # Use _U cookie to create a conversation.
-        cookies = {"_U": os.environ["BING_U_COOKIE"]}
+        cookies = {"_U": self.bing_u_cookie}
 
         session = ClientSession(headers=HEADERS, cookies=cookies)
         async with session.get(BING_CREATE_CONVESATION_URL) as response:
@@ -233,7 +246,7 @@ class SydneyClient:
             response_dict = await response.json()
             if response_dict["result"]["value"] != "Success":
                 raise Exception(
-                    f"Failed to authenticate, received message: {response_dict['response']['message']}"
+                    f"Failed to authenticate, received message: {response_dict['result']['message']}"
                 )
 
             self.conversation_id = response_dict["conversationId"]
