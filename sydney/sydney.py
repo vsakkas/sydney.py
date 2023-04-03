@@ -8,15 +8,15 @@ import websockets.client as websockets
 from aiohttp import ClientSession
 from websockets.client import WebSocketClientProtocol
 
-from .constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
-from .enums import (
+from sydney.constants import BING_CHATHUB_URL, BING_CREATE_CONVESATION_URL, DELIMETER, HEADERS
+from sydney.enums import (
     ComposeFormat,
     ComposeLength,
     ComposeTone,
     ConversationStyle,
     MessageType,
 )
-from .utils import as_json
+from sydney.utils import as_json
 
 
 class SydneyClient:
