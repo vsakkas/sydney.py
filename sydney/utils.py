@@ -1,6 +1,6 @@
 import json
 
-from .constants import DELIMETER
+from sydney.constants import DELIMETER
 
 
 def as_json(message: dict) -> str:
