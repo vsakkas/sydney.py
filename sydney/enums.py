@@ -9,9 +9,9 @@ class ConversationStyle(Enum):
     - `precise` for concise and straightforward chat
     """
 
-    creative = "h3relaxedimg"
-    balanced = "galileo"
-    precise = "h3precise"
+    CREATIVE = "h3relaxedimg"
+    BALANCED = "galileo"
+    PRECISE = "h3precise"
 
 
 class ComposeTone(Enum):
@@ -24,11 +24,11 @@ class ComposeTone(Enum):
     - `funny` for conversations where the writer wants to be humorous or entertaining
     """
 
-    professional = "professional"
-    casual = "casual"
-    enthusiastic = "enthusiastic"
-    informational = "informational"
-    funny = "funny"
+    PROFESSIONAL = "professional"
+    CASUAL = "casual"
+    ENTHUSIASTIC = "enthusiastic"
+    INFORMATIONAL = "informational"
+    FUNNY = "funny"
 
 
 class ComposeFormat(Enum):
@@ -40,10 +40,10 @@ class ComposeFormat(Enum):
     - `ideas` for messages that are used to brainstorm or share ideas
     """
 
-    paragraph = "paragraph"
-    email = "email"
-    blogpost = "blog post"
-    ideas = "ideas"
+    PARAGRAPH = "paragraph"
+    EMAIL = "email"
+    BLOGPOST = "blog post"
+    IDEAS = "ideas"
 
 
 class ComposeLength(Enum):
@@ -54,9 +54,9 @@ class ComposeLength(Enum):
     - `long` for messages that are several paragraphs or pages long
     """
 
-    short = "short"
-    medium = "medium"
-    long = "long"
+    SHORT = "short"
+    MEDIUM = "medium"
+    LONG = "long"
 
 
 class MessageType(Enum):
@@ -74,13 +74,13 @@ class MessageType(Enum):
     - `SearchQuery`
     """
 
-    chat = "Chat"
-    internal_search_query = "InternalSearchQuery"
-    internal_search_result = "InternalSearchResult"
-    disengaged = "Disengaged"
-    internal_loader_message = "InternalLoaderMessage"
-    render_card_request = "RenderCardRequest"
-    ads_query = "AdsQuery"
-    semantic_serp = "SemanticSerp"
-    generate_content_query = "GenerateContentQuery"
-    search_query = "SearchQuery"
+    CHAT = "Chat"
+    INTERNAL_SEARCH_QUERY = "InternalSearchQuery"
+    INTERNAL_SEARCH_RESULT = "InternalSearchResult"
+    DISENGAGED = "Disengaged"
+    INTERNAL_LOADER_MESSAGE = "InternalLoaderMessage"
+    RENDER_CARD_REQUEST = "RenderCardRequest"
+    ADS_QUERY = "AdsQuery"
+    SEMANTIC_SERP = "SemanticSerp"
+    GENERATE_CONTENT_QUERY = "GenerateContentQuery"
+    SEARCH_QUERY = "SearchQuery"
