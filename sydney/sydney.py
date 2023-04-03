@@ -43,7 +43,7 @@ class SydneyClient:
         self.bing_u_cookie = (
             bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
         )
-        self.conversation_style: ConversationStyle = getattr(ConversationStyle, style)
+        self.conversation_style: ConversationStyle = getattr(ConversationStyle, style.upper())
         self.conversation_signature: str | None = None
         self.conversation_id: str | None = None
         self.client_id: str | None = None
@@ -76,7 +76,7 @@ class SydneyClient:
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
-                        "messageType": MessageType.chat.value,
+                        "messageType": MessageType.CHAT.value,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -117,7 +117,7 @@ class SydneyClient:
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. The generated text should follow these characteristics: tone: *{tone.value}*, length: *{length.value}*, format: *{format.value}*. The keywords are: `{prompt}`.",
-                        "messageType": MessageType.chat.value,
+                        "messageType": MessageType.CHAT.value,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {"id": self.client_id},
@@ -355,9 +355,9 @@ class SydneyClient:
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
-        compose_tone = getattr(ComposeTone, tone)
-        compose_format = getattr(ComposeFormat, format)
-        compose_length = getattr(ComposeLength, length)
+        compose_tone = getattr(ComposeTone, tone.upper())
+        compose_format = getattr(ComposeFormat, format.upper())
+        compose_length = getattr(ComposeLength, length.upper())
 
         async for response in self._compose(
             prompt, compose_tone, compose_format, compose_length, raw, stream=False
@@ -402,9 +402,9 @@ class SydneyClient:
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
-        compose_tone = getattr(ComposeTone, tone)
-        compose_format = getattr(ComposeFormat, format)
-        compose_length = getattr(ComposeLength, length)
+        compose_tone = getattr(ComposeTone, tone.upper())
+        compose_format = getattr(ComposeFormat, format.upper())
+        compose_length = getattr(ComposeLength, length.upper())
 
         previous_response = ""
         async for response in self._compose(
@@ -436,7 +436,7 @@ class SydneyClient:
         """
         await self.close_conversation()
         self.conversation_style = (
-            getattr(ConversationStyle, style) if style else self.conversation_style
+            getattr(ConversationStyle, style.upper()) if style else self.conversation_style
         )
         await self.start_conversation()
 
