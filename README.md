@@ -64,12 +64,13 @@ async def main() -> None:
             if prompt == "!reset":
                 await sydney.reset_conversation()
                 continue
-            if prompt == "!exit":
+            elif prompt == "!exit":
                 break
-            
+
             print("Sydney: ", end="", flush=True)
             async for response in sydney.ask_stream(prompt):
-                print(response, end='', flush=True)
+                print(response, end="", flush=True)
+            print("\n")
 
 
 if __name__ == "__main__":
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 
 ### Sydney Client
 
-You can create a Sydney Client and start a conversation with the following:
+You can create a Sydney Client and initialize a connection with Bing Chat which starts a conversation:
 
 ```python
 sydney = SydneyClient()
@@ -117,7 +118,7 @@ async withSydneyClient() as sydney:
 
 ### Ask
 
-You can ask Bing Chat questions and optionally include citations in the results:
+You can ask Bing Chat questions and (optionally) include citations in the results:
 
 ```python
 async with SydneyClient() as sydney:
@@ -130,18 +131,18 @@ You can also stream the response tokens:
 ```python
 async with SydneyClient() as sydney:
     async for response in sydney.ask_stream("When was Bing Chat released?", citations=True):
-        print(response, end='', flush=True)
+        print(response, end="", flush=True)
 ```
 
 Both versions of the `ask` method support the same parameters.
 
 ### Compose
 
-You can ask Bing Chat to compose different types of content, such as email, an article, a list of ideas and more:
+You can ask Bing Chat to compose different types of content, such emails, articles, ideas and more:
 
 ```python
 async with SydneyClient() as sydney:
-    response = sydney.compose("Why Python is a great language")
+    response = sydney.compose("Why Python is a great language", format="ideas")
     print(response)
 ```
 
@@ -149,8 +150,8 @@ You can also stream the response tokens:
 
 ```python
 async with SydneyClient() as sydney:
-   async for response in sydney.compose_stream("Why Python is a great language"):
-        print(response, end='', flush=True)
+   async for response in sydney.compose_stream("Why Python is a great language", format="ideas"):
+        print(response, end="", flush=True)
 ```
 
 Both versions of the `compose` method support parameters for setting the tone, format and length of the composed text.
@@ -164,6 +165,8 @@ async with SydneyClient() as sydney:
     response = sydney.ask("When was Bing Chat released?", raw=True)
     print(response)
 ```
+
+---
 
 For more detailed documentation and options, please refer to the code docstrings.
 
