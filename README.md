@@ -166,9 +166,7 @@ async with SydneyClient() as sydney:
     print(response)
 ```
 
----
-
-For more detailed documentation and options, please refer to the code docstrings.
+*For more detailed documentation and options, please refer to the code docstrings.*
 
 ## License
 
