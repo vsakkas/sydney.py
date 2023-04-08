@@ -48,7 +48,7 @@ os.environ["BING_U_COOKIE"] = "<your-cookie>"
 
 ### Example
 
-You can Sydney.py to easily create a CLI client for Bing Chat:
+You can use Sydney.py to easily create a CLI client for Bing Chat:
 
 ```python
 import asyncio
@@ -134,7 +134,8 @@ async with SydneyClient() as sydney:
         print(response, end="", flush=True)
 ```
 
-Both versions of the `ask` method support the same parameters.
+> **Note**
+> Both versions of the `ask` method support the same parameters.
 
 ### Compose
 
@@ -154,7 +155,8 @@ async with SydneyClient() as sydney:
         print(response, end="", flush=True)
 ```
 
-Both versions of the `compose` method support parameters for setting the tone, format and length of the composed text.
+> **Note**
+> Both versions of the `compose` method support parameters for setting the tone, format and length of the composed text.
 
 ### Raw Response
 
