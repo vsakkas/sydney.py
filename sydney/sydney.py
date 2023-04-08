@@ -429,15 +429,13 @@ class SydneyClient:
             - `creative` for original and imaginative chat
             - `balanced` for informative and friendly chat
             - `precise` for concise and straightforward chat
-            If None, the new conversation will use the same conversation style as the
-            current conversation.
 
-            Default is None.
+            If None, the new conversation will use the same conversation style as the
+            current conversation. Default is None.
         """
         await self.close_conversation()
-        self.conversation_style = (
-            getattr(ConversationStyle, style.upper()) if style else self.conversation_style
-        )
+        if style:
+            self.conversation_style = getattr(ConversationStyle, style.upper())
         await self.start_conversation()
 
     async def close_conversation(self) -> None:
@@ -450,7 +448,7 @@ class SydneyClient:
                 self.wss_client = None
 
         # Clear conversation information.
+        self.conversation_signature = None
         self.conversation_id = None
         self.client_id = None
-        self.conversation_signature = None
         self.invocation_id = None
