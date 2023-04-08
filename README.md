@@ -40,7 +40,14 @@ poetry add sydney-py
 
 ### Prerequisites
 
-To use Sydney.py you first need to extract the `_U` cookie from [Bing](https://bing.com).
+To use Sydney.py you first need to extract the `_U` cookie from [Bing](https://bing.com). The `_U` cookie is used to authenticate your requests to the Bing Chat API.
+
+To get the `_U` cookie, follow these steps:
+- Log in to [Bing](https://bing.com) using your Microsoft account.
+- Open the developer tools in your browser (usually by pressing `F12` or right-clicking and selecting `Inspect element`).
+- Select the `Storage` tab and click on the `Cookies` option to view all cookies associated with the website.
+- Look for the `_U` cookie and click on it to expand its details.
+- Copy the value of the `_U` cookie (it should look like a long string of letters and numbers).
 
 Then, set it as an environment variable in your shell:
 
