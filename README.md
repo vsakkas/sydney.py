@@ -9,6 +9,14 @@ Python Client for Bing Chat, also known as Sydney.
 > **Note**
 > This is an **unofficial** client.
 
+## Features
+
+- Connect to Bing Chat, Microsoft's AI-powered personal assistant.
+- Ask questions and have a conversation in various conversation styles.
+- Compose content in various formats and tones.
+- Stream response tokens for real-time communication.
+- Supports asyncio for efficient and non-blocking I/O operations.
+
 ## Requirements
 
 - Python 3.10 or newer
@@ -106,6 +114,8 @@ You can set the conversation style when creating a Sydney Client:
 sydney = SydneyClient(style="creative")
 ```
 
+The available options are `creative`, `balanced` and `precise`.
+
 ### Reset Conversation
 
 You can reset the conversation in order to make the client forget the previous conversation. You can also change the conversation style without creating a new client:
@@ -155,8 +165,14 @@ async with SydneyClient() as sydney:
         print(response, end="", flush=True)
 ```
 
+The available options for the `tone` parameter are `professional`, `casual`, `enthusiastic`, `informational` and `funny`.
+
+The available options for the `format` parameter are `paragraph`, `email`, `blogpost` and `ideas`.
+
+The available options for the `length` parameter are `short`, `medium` and `long`.
+
 > **Note**
-> Both versions of the `compose` method support parameters for setting the tone, format and length of the composed text.
+> Both versions of the `compose` method support the same parameters.
 
 ### Raw Response
 
