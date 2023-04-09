@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.10.0"
+version = "0.11.0"
 description = "Python Client for Bing Chat, also known as Sydney."
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
