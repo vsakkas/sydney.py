@@ -21,6 +21,7 @@ from sydney.enums import (
     ConversationStyle,
     MessageType,
 )
+from sydney.exceptions import NoConnectionException, NoResponseException
 from sydney.utils import as_json
 
 
@@ -43,7 +44,9 @@ class SydneyClient:
         self.bing_u_cookie = (
             bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
         )
-        self.conversation_style: ConversationStyle = getattr(ConversationStyle, style.upper())
+        self.conversation_style: ConversationStyle = getattr(
+            ConversationStyle, style.upper()
+        )
         self.conversation_signature: str | None = None
         self.conversation_id: str | None = None
         self.client_id: str | None = None
@@ -136,7 +139,14 @@ class SydneyClient:
         raw: bool = False,
         stream: bool = False,
     ) -> AsyncGenerator[str | dict, None]:
-        # Create a connection Bing Chat.
+        if (
+            self.conversation_id is None
+            or self.client_id is None
+            or self.invocation_id is None
+        ):
+            raise NoConnectionException("No connection to Bing Chat was found")
+
+        # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
         )
@@ -189,7 +199,14 @@ class SydneyClient:
         raw: bool,
         stream: bool,
     ) -> AsyncGenerator[str | dict, None]:
-        # Create a connection Bing Chat.
+        if (
+            self.conversation_id is None
+            or self.client_id is None
+            or self.invocation_id is None
+        ):
+            raise NoConnectionException("No connection to Bing Chat was found")
+
+        # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
             BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
         )
@@ -283,6 +300,8 @@ class SydneyClient:
         async for response in self._ask(prompt, citations, raw, stream=False):
             return response
 
+        raise NoResponseException("No response was returned")
+
     async def ask_stream(
         self,
         prompt: str,
@@ -310,7 +329,7 @@ class SydneyClient:
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
         """
-        previous_response = ""
+        previous_response: str | dict = ""
         async for response in self._ask(prompt, citations, raw, stream=True):
             if raw:
                 yield response
@@ -364,6 +383,8 @@ class SydneyClient:
         ):
             return response
 
+        raise NoResponseException("No response was returned")
+
     async def compose_stream(
         self,
         prompt: str,
@@ -406,7 +427,7 @@ class SydneyClient:
         compose_format = getattr(ComposeFormat, format.upper())
         compose_length = getattr(ComposeLength, length.upper())
 
-        previous_response = ""
+        previous_response: str | dict = ""
         async for response in self._compose(
             prompt, compose_tone, compose_format, compose_length, raw, stream=True
         ):
