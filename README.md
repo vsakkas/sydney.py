@@ -139,7 +139,7 @@ You can ask Bing Chat questions and (optionally) include citations in the result
 
 ```python
 async with SydneyClient() as sydney:
-    response = sydney.ask("When was Bing Chat released?", citations=True)
+    response = await sydney.ask("When was Bing Chat released?", citations=True)
     print(response)
 ```
 
@@ -187,7 +187,7 @@ You can also receive the raw JSON response that comes from Bing Chat instead of 
 
 ```python
 async with SydneyClient() as sydney:
-    response = sydney.ask("When was Bing Chat released?", raw=True)
+    response = await sydney.ask("When was Bing Chat released?", raw=True)
     print(response)
 ```
 
