@@ -61,19 +61,23 @@ class SydneyClient:
         await self.close_conversation()
 
     def _build_ask_arguments(self, prompt: str) -> dict:
+        style_options = self.conversation_style.value.split(",")
+        options_sets = [
+            "nlu_direct_response_filter",
+            "deepleo",
+            "disable_emoji_spoken_text",
+            "responsible_ai_policy_235",
+            "enablemm",
+            "dv3sugg",
+        ]
+        for style in style_options:
+            options_sets.append(style.strip())
+
         return {
             "arguments": [
                 {
                     "source": "cib",
-                    "optionsSets": [
-                        "nlu_direct_response_filter",
-                        "deepleo",
-                        "disable_emoji_spoken_text",
-                        "responsible_ai_policy_235",
-                        "enablemm",
-                        "dv3sugg",
-                        self.conversation_style.value,
-                    ],
+                    "optionsSets": options_sets,
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
