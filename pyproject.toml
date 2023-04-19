@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "sydney"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 aiohttp = "^3.8.4"
 websockets = "^10.4"
 
