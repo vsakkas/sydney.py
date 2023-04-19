@@ -9,9 +9,9 @@ class ConversationStyle(Enum):
     - `precise` for concise and straightforward chat
     """
 
-    CREATIVE = "h3relaxedimg"
+    CREATIVE = "h3imaginative,clgalileo,gencontentv3"
     BALANCED = "galileo"
-    PRECISE = "h3precise"
+    PRECISE = "h3precise,clgalileo"
 
 
 class ComposeTone(Enum):
