@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.11.2"
+version = "0.11.3"
 description = "Python Client for Bing Chat, also known as Sydney."
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "sydney"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 aiohttp = "^3.8.4"
 websockets = "^10.4"
 
