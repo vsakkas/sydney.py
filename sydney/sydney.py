@@ -5,7 +5,7 @@ from os import environ
 from typing import AsyncGenerator
 
 import websockets.client as websockets
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
@@ -301,10 +301,13 @@ class SydneyClient:
         # Use _U cookie to create a conversation.
         cookies = {"_U": self.bing_u_cookie}
 
-        session = ClientSession(headers=HEADERS, cookies=cookies)
-        async with session.get(
-            BING_CREATE_CONVESATION_URL, proxy=self.proxy_url
-        ) as response:
+        session = ClientSession(
+            headers=HEADERS,
+            cookies=cookies,
+            trust_env=True,
+            connector=TCPConnector(verify_ssl=False),
+        )
+        async with session.get(BING_CREATE_CONVESATION_URL) as response:
             if response.status != 200:
                 raise Exception(
                     f"Failed to create conversation, received status: {response.status}"
