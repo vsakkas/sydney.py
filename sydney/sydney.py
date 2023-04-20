@@ -32,7 +32,10 @@ from sydney.utils import as_json
 
 class SydneyClient:
     def __init__(
-        self, style: str = "balanced", bing_u_cookie: str | None = None
+        self,
+        style: str = "balanced",
+        bing_u_cookie: str | None = None,
+        proxy_url: str | None = None,
     ) -> None:
         """
         Client for Bing Chat.
@@ -45,10 +48,14 @@ class SydneyClient:
         bing_u_cookie: str | None
             The _U cookie from Bing required to connect and use Bing Chat. If not provided,
             the `BING_U_COOKIE` environment variable is loaded instead. Default is None.
+        proxy_url: str | None
+            The URL of the HTTP proxy server to use for making requests to the Bing Chat API.
+            If not provided, no proxy will be used. Default is None.
         """
         self.bing_u_cookie = (
             bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
         )
+        self.proxy_url = proxy_url
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
@@ -295,7 +302,9 @@ class SydneyClient:
         cookies = {"_U": self.bing_u_cookie}
 
         session = ClientSession(headers=HEADERS, cookies=cookies)
-        async with session.get(BING_CREATE_CONVESATION_URL) as response:
+        async with session.get(
+            BING_CREATE_CONVESATION_URL, proxy=self.proxy_url
+        ) as response:
             if response.status != 200:
                 raise Exception(
                     f"Failed to create conversation, received status: {response.status}"
