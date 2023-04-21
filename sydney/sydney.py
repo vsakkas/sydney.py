@@ -142,7 +142,7 @@ class SydneyClient:
         citations: bool = False,
         raw: bool = False,
         stream: bool = False,
-    ) -> AsyncGenerator[str | dict, None]:
+    ) -> AsyncGenerator[tuple[str | dict, list | None], None]:
         if (
             self.conversation_id is None
             or self.client_id is None
@@ -176,19 +176,19 @@ class SydneyClient:
                     and response["arguments"][0].get("messages")
                 ):
                     if raw:
-                        yield response
+                        yield response, None
                     elif citations:
-                        yield response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
+                        yield response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
-                        yield response["arguments"][0]["messages"][0]["text"]
+                        yield response["arguments"][0]["messages"][0]["text"], None
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     if raw:
                         yield response
                     elif citations:
-                        yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+                        yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
-                        yield response["item"]["messages"][1]["text"]
+                        yield response["item"]["messages"][1]["text"], None
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -303,7 +303,7 @@ class SydneyClient:
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
         """
-        async for response in self._ask(prompt, citations, raw, stream=False):
+        async for response, suggestions in self._ask(prompt, citations, raw, stream=False):
             return response
 
         raise NoResponseException("No response was returned")
@@ -336,7 +336,7 @@ class SydneyClient:
             If raw is True, the function returns the entire response object in raw JSON format.
         """
         previous_response: str | dict = ""
-        async for response in self._ask(prompt, citations, raw, stream=True):
+        async for response, _ in self._ask(prompt, citations, raw, stream=True):
             if raw:
                 yield response
             # For text-only responses, return only newly streamed tokens.
