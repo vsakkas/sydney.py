@@ -185,7 +185,7 @@ class SydneyClient:
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     if raw:
-                        yield response
+                        yield response, None
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
