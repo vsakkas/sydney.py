@@ -152,8 +152,7 @@ async with SydneyClient() as sydney:
         print(response, end="", flush=True)
 ```
 
-> **Note**
-> Both versions of the `ask` method support the same parameters.
+Both versions of the `ask` method support the same parameters.
 
 ### Compose
 
@@ -191,8 +190,7 @@ The available options for the `length` parameter are:
 - `medium`
 - `long`
 
-> **Note**
-> Both versions of the `compose` method support the same parameters.
+Both versions of the `compose` method support the same parameters.
 
 ### Suggested Responses
 
@@ -208,10 +206,10 @@ async with SydneyClient() as sydney:
 ```
 
 > **Note**
-> The suggested responses are returned only if the suggestions parameter is true. Otherwise, the `ask` and `ask_stream` methods return only the response.
+> The suggested user responses are returned only if the suggestions parameter is true. Otherwise, the `ask` and `ask_stream` methods return only the response.
 
 > **Note**
-> When using the `ask_stream` method with the suggestions parameter, only the lastly returned suggested responses may contain a value. For all previous iterations, suggested responses will be `None`.
+> When using the `ask_stream` method with the suggestions parameter, only the suggested user responses returned lastly may contain a value. For all previous iterations, the suggested user responses will be `None`.
 
 ### Raw Response
 
