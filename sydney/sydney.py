@@ -140,6 +140,7 @@ class SydneyClient:
         self,
         prompt: str,
         citations: bool = False,
+        suggestions: bool = False,
         raw: bool = False,
         stream: bool = False,
     ) -> AsyncGenerator[tuple[str | dict, list | None], None]:
@@ -185,10 +186,16 @@ class SydneyClient:
                 elif response.get("type") == 2:
                     if raw:
                         yield response
-                    elif citations:
-                        yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
-                        yield response["item"]["messages"][1]["text"], None
+                        suggested_responses = None
+                        # Include list of suggested user responses, if enabled.
+                        if suggestions:
+                            suggested_responses = [item["text"] for item in response["item"]["messages"][1]["suggestedResponses"]]
+
+                        if citations:
+                            yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
+                        else:
+                            yield response["item"]["messages"][1]["text"], suggested_responses
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -283,8 +290,9 @@ class SydneyClient:
         self,
         prompt: str,
         citations: bool = False,
+        suggestions: bool = False,
         raw: bool = False,
-    ) -> str | dict:
+    ) -> str | dict | tuple[str | dict, list | None]:
         """
         Send a prompt to Bing Chat using the current conversation and return the answer.
 
@@ -294,6 +302,8 @@ class SydneyClient:
             The prompt that needs to be sent to Bing Chat.
         citations : bool, optional
             Whether to return any cited text. Default is False.
+        suggestions : bool, optional
+            Whether to return any suggested user responses. Default is False.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -303,8 +313,13 @@ class SydneyClient:
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
         """
-        async for response, suggestions in self._ask(prompt, citations, raw, stream=False):
-            return response
+        async for response, suggested_responses in self._ask(
+            prompt, citations, suggestions, raw, stream=False
+        ):
+            if suggestions:
+                return response, suggested_responses
+            else:
+                return response
 
         raise NoResponseException("No response was returned")
 
@@ -312,8 +327,9 @@ class SydneyClient:
         self,
         prompt: str,
         citations: bool = False,
+        suggestions: bool = False,
         raw: bool = False,
-    ) -> AsyncGenerator[str | dict, None]:
+    ) -> AsyncGenerator[str | dict | tuple[str | dict, list | None], None]:
         """
         Send a prompt to Bing Chat using the current conversation and stream the answer.
 
@@ -326,6 +342,8 @@ class SydneyClient:
             The prompt that needs to be sent to Bing Chat.
         citations : bool, optional
             Whether to return any cited text. Default is False.
+        suggestions : bool, optional
+            Whether to return any suggested user responses. Default is False.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -336,14 +354,17 @@ class SydneyClient:
             If raw is True, the function returns the entire response object in raw JSON format.
         """
         previous_response: str | dict = ""
-        async for response, _ in self._ask(prompt, citations, raw, stream=True):
+        async for response, suggested_responses in self._ask(prompt, citations, suggestions, raw, stream=True):
             if raw:
                 yield response
             # For text-only responses, return only newly streamed tokens.
             else:
                 new_response = response[len(previous_response) :]
                 previous_response = response
-                yield new_response
+                if suggestions:
+                    yield new_response, suggested_responses
+                else:
+                    yield new_response
 
     async def compose(
         self,
