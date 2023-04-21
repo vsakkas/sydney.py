@@ -173,11 +173,23 @@ async with SydneyClient() as sydney:
         print(response, end="", flush=True)
 ```
 
-The available options for the `tone` parameter are `professional`, `casual`, `enthusiastic`, `informational` and `funny`.
+The available options for the `tone` parameter are:
+- `professional`
+- `casual`
+- `enthusiastic`
+- `informational`
+- `funny`
 
-The available options for the `format` parameter are `paragraph`, `email`, `blogpost` and `ideas`.
+The available options for the `format` parameter are:
+- `paragraph`
+- `email`
+- `blogpost`
+- `ideas`
 
-The available options for the `length` parameter are `short`, `medium` and `long`.
+The available options for the `length` parameter are:
+- `short`
+- `medium`
+- `long`
 
 > **Note**
 > Both versions of the `compose` method support the same parameters.
