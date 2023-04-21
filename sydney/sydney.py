@@ -185,9 +185,10 @@ class SydneyClient:
                 elif response.get("type") == 2:
                     if raw:
                         yield response
-                    if citations:
+                    elif citations:
                         yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
-                    yield response["item"]["messages"][1]["text"]
+                    else:
+                        yield response["item"]["messages"][1]["text"]
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -243,7 +244,8 @@ class SydneyClient:
                 elif response.get("type") == 2:
                     if raw:
                         yield response
-                    yield response["item"]["messages"][1]["text"]
+                    else:
+                        yield response["item"]["messages"][1]["text"]
 
                     # Exit, type 2 is the last message.
                     streaming = False
