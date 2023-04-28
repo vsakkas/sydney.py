@@ -7,7 +7,6 @@ from typing import AsyncGenerator
 import websockets.client as websockets
 from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
-from functools import partial
 
 from sydney.constants import (
     BING_CHATHUB_URL,
@@ -307,11 +306,10 @@ class SydneyClient:
             headers=HEADERS,
             cookies=cookies,
             trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+            connector=TCPConnector(verify_ssl=False)
+            if self.use_proxy
+            else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
-
-        # Resolve HTTPS issue when proxy support is enabled.
-        if self.use_proxy:
-            session = partial(session, connector=TCPConnector(verify_ssl=False))
 
         async with session.get(BING_CREATE_CONVESATION_URL) as response:
             if response.status != 200:
