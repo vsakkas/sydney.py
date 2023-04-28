@@ -84,3 +84,14 @@ class MessageType(Enum):
     SEMANTIC_SERP = "SemanticSerp"
     GENERATE_CONTENT_QUERY = "GenerateContentQuery"
     SEARCH_QUERY = "SearchQuery"
+
+
+class ResultValue(Enum):
+    """
+    Bing Chat result values on raw responses. Supported options are:
+    - `Success`
+    - `Throttled`
+    """
+
+    SUCCESS = "Success"
+    THROTTLED = "Throttled"

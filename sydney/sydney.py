@@ -20,8 +20,13 @@ from sydney.enums import (
     ComposeTone,
     ConversationStyle,
     MessageType,
+    ResultValue,
 )
-from sydney.exceptions import NoConnectionException, NoResponseException
+from sydney.exceptions import (
+    NoConnectionException,
+    NoResponseException,
+    ThrottledRequestException,
+)
 from sydney.utils import as_json
 
 
@@ -171,31 +176,45 @@ class SydneyClient:
                     continue
                 response = json.loads(obj)
                 # Handle type 1 messages when streaming is enabled.
-                if (
-                    stream
-                    and response.get("type") == 1
-                    and response["arguments"][0].get("messages")
-                ):
+                if stream and response.get("type") == 1:
+                    messages = response["arguments"][0].get("messages")
+                    # Skip on empty response.
+                    if not messages:
+                        continue
+
                     if raw:
                         yield response, None
                     elif citations:
-                        yield response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"], None
+                        yield messages[0]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
-                        yield response["arguments"][0]["messages"][0]["text"], None
+                        yield messages[0]["text"], None
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
+                    messages = response["item"].get("messages")
+                    if not messages:
+                        result_value = response["item"]["result"]["value"]
+                        # Raise error if throttled.
+                        if result_value == ResultValue.THROTTLED.value:
+                            raise ThrottledRequestException("Request is throttled")
+                        return  # Return empty message.
+
                     if raw:
                         yield response, None
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
                         if suggestions:
-                            suggested_responses = [item["text"] for item in response["item"]["messages"][1]["suggestedResponses"]]
+                            suggested_responses = [
+                                item["text"]
+                                for item in messages[1]["suggestedResponses"]
+                            ]
 
                         if citations:
-                            yield response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
+                            yield messages[1]["adaptiveCards"][0]["body"][0][
+                                "text"
+                            ], suggested_responses
                         else:
-                            yield response["item"]["messages"][1]["text"], suggested_responses
+                            yield messages[1]["text"], suggested_responses
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -238,21 +257,30 @@ class SydneyClient:
                     continue
                 response = json.loads(obj)
                 # Handle type 1 messages when streaming is enabled.
-                if (
-                    stream
-                    and response.get("type") == 1
-                    and response["arguments"][0].get("messages")
-                ):
+                if stream and response.get("type") == 1:
+                    messages = response["arguments"][0].get("messages")
+                    # Skip on empty response.
+                    if not messages:
+                        continue
+
                     if raw:
                         yield response
                     else:
-                        yield response["arguments"][0]["messages"][0]["text"]
+                        yield messages[0]["text"]
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
+                    messages = response["item"].get("messages")
+                    if not messages:
+                        result_value = response["item"]["result"]["value"]
+                        # Raise error if throttled.
+                        if result_value == ResultValue.THROTTLED.value:
+                            raise ThrottledRequestException("Request is throttled")
+                        return  # Return empty message.
+
                     if raw:
                         yield response
                     else:
-                        yield response["item"]["messages"][1]["text"]
+                        yield messages[1]["text"]
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -354,7 +382,9 @@ class SydneyClient:
             If raw is True, the function returns the entire response object in raw JSON format.
         """
         previous_response: str | dict = ""
-        async for response, suggested_responses in self._ask(prompt, citations, suggestions, raw, stream=True):
+        async for response, suggested_responses in self._ask(
+            prompt, citations, suggestions, raw, stream=True
+        ):
             if raw:
                 yield response
             # For text-only responses, return only newly streamed tokens.
