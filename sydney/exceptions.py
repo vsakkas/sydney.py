@@ -3,3 +3,6 @@ class NoConnectionException(Exception):
 
 class NoResponseException(Exception):
     pass
+
+class ThrottledRequestException(Exception):
+    pass
