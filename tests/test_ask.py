@@ -6,7 +6,10 @@ from thefuzz import fuzz
 
 @pytest.mark.asyncio
 async def test_ask_precise() -> bool:
-    expected_responses = ["Hello! This is Bing. How can I help you today? 😊"]
+    expected_responses = [
+        "Hello! This is Bing. How can I help you today? 😊",
+        "Hello! How can I help you today? 😊",
+    ]
 
     async with SydneyClient(style="precise") as sydney:
         response = await sydney.ask("Hello, Bing!")
