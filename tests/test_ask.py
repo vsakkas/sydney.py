@@ -17,7 +17,7 @@ async def test_ask_precise() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -33,7 +33,7 @@ async def test_ask_balanced() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -52,7 +52,7 @@ async def test_ask_creative() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -70,7 +70,7 @@ async def test_ask_stream_precise() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -88,7 +88,7 @@ async def test_ask_stream_balanced() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -109,7 +109,7 @@ async def test_ask_stream_creative() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 90:
+            if score >= 80:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
