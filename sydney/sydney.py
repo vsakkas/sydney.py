@@ -5,7 +5,7 @@ from os import environ
 from typing import AsyncGenerator
 
 import websockets.client as websockets
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
@@ -32,7 +32,10 @@ from sydney.utils import as_json
 
 class SydneyClient:
     def __init__(
-        self, style: str = "balanced", bing_u_cookie: str | None = None
+        self,
+        style: str = "balanced",
+        bing_u_cookie: str | None = None,
+        use_proxy: bool = False,
     ) -> None:
         """
         Client for Bing Chat.
@@ -45,10 +48,15 @@ class SydneyClient:
         bing_u_cookie: str | None
             The _U cookie from Bing required to connect and use Bing Chat. If not provided,
             the `BING_U_COOKIE` environment variable is loaded instead. Default is None.
+        use_proxy: str | None
+            Flag to determine if an HTTP proxy will be used to start a conversation with Bing Chat. If set to True,
+            the `HTTP_PROXY` and `HTTPS_PROXY` environment variables must be set to the address of the proxy to be used.
+            If not provided, no proxy will be used. Default is False.
         """
         self.bing_u_cookie = (
             bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
         )
+        self.use_proxy = use_proxy
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
@@ -294,7 +302,15 @@ class SydneyClient:
         # Use _U cookie to create a conversation.
         cookies = {"_U": self.bing_u_cookie}
 
-        session = ClientSession(headers=HEADERS, cookies=cookies)
+        session = ClientSession(
+            headers=HEADERS,
+            cookies=cookies,
+            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+            connector=TCPConnector(verify_ssl=False)
+            if self.use_proxy
+            else None,  # Resolve HTTPS issue when proxy support is enabled.
+        )
+
         async with session.get(BING_CREATE_CONVESATION_URL) as response:
             if response.status != 200:
                 raise Exception(
