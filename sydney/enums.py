@@ -95,3 +95,4 @@ class ResultValue(Enum):
 
     SUCCESS = "Success"
     THROTTLED = "Throttled"
+    CAPTCHA_CHALLENGE = "CaptchaChallenge"

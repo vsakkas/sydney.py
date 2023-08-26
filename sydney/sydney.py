@@ -23,6 +23,7 @@ from sydney.enums import (
     ResultValue,
 )
 from sydney.exceptions import (
+    CaptchaChallengeException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -201,9 +202,12 @@ class SydneyClient:
                     messages = response["item"].get("messages")
                     if not messages:
                         result_value = response["item"]["result"]["value"]
-                        # Raise error if throttled.
+                        # Throttled - raise error.
                         if result_value == ResultValue.THROTTLED.value:
                             raise ThrottledRequestException("Request is throttled")
+                        # Captcha chalennge - user needs to solve captcha manually.
+                        elif result_value == ResultValue.CAPTCHA_CHALLENGE.value:
+                            raise CaptchaChallengeException("Solve CAPTCHA to continue")
                         return  # Return empty message.
 
                     if raw:
@@ -280,9 +284,12 @@ class SydneyClient:
                     messages = response["item"].get("messages")
                     if not messages:
                         result_value = response["item"]["result"]["value"]
-                        # Raise error if throttled.
+                        # Throttled - raise error.
                         if result_value == ResultValue.THROTTLED.value:
                             raise ThrottledRequestException("Request is throttled")
+                        # Captcha chalennge - user needs to solve captcha manually.
+                        elif result_value == ResultValue.CAPTCHA_CHALLENGE.value:
+                            raise CaptchaChallengeException("Solve CAPTCHA to continue")
                         return  # Return empty message.
 
                     if raw:

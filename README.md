@@ -62,6 +62,8 @@ or, in your Python code:
 os.environ["BING_U_COOKIE"] = "<your-cookie>"
 ```
 
+*It is also recommended to manually write a message to Bing Chat on the [Bing](https://bing.com) page. This will result in a message box containing a `Verifying` message, which will then switch to `Success!` Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.*
+
 ### Example
 
 You can use Sydney.py to easily create a CLI client for Bing Chat:

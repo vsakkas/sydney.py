@@ -6,3 +6,6 @@ class NoResponseException(Exception):
 
 class ThrottledRequestException(Exception):
     pass
+
+class CaptchaChallengeException(Exception):
+    pass
