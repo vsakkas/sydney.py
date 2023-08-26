@@ -44,6 +44,7 @@ async def test_ask_creative() -> bool:
     expected_responses = [
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
+        "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?"
     ]
 
     async with SydneyClient(style="creative") as sydney:
@@ -99,6 +100,7 @@ async def test_ask_stream_creative() -> bool:
     expected_responses = [
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
+        "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?"
     ]
 
     async with SydneyClient(style="creative") as sydney:
