@@ -1,6 +1,6 @@
 # Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.13.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.14.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -220,6 +220,16 @@ You can also receive the raw JSON response that comes from Bing Chat instead of 
 ```python
 async with SydneyClient() as sydney:
     response = await sydney.ask("When was Bing Chat released?", raw=True)
+    print(response)
+```
+
+### Conversations
+
+You can also receive all existing conversations that were made with the current client:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.get_conversations()
     print(response)
 ```
 
