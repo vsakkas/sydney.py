@@ -223,6 +223,34 @@ async with SydneyClient() as sydney:
     print(response)
 ```
 
+### Conversations
+
+You can also receive all existing conversations that were made with the current client:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.get_conversations()
+    print(response)
+    # {
+    #     "chats": [
+    #         {
+    #             "conversationId": "...",
+    #             ...
+    #         },
+    #         {
+    #             "conversationId": "...",
+    #             ...
+    #         }
+    #     ],
+    #     "result": {
+    #         "value": "Success",
+    #         "message": "2 chats found.",
+    #         ...
+    #     },
+    #     "clientId": "1234567890"
+    # }
+```
+
 *For more detailed documentation and options, please refer to the code docstrings.*
 
 ## License
