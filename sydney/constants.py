@@ -7,6 +7,7 @@ HEADERS = {
 }
 
 BING_CREATE_CONVERSATION_URL = "https://www.bing.com/turing/conversation/create"
+BING_GET_CONVERSATIONS_URL = "https://www.bing.com/turing/conversation/chats"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
 
 DELIMETER = "\x1e"  # Record separator character.

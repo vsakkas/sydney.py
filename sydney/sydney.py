@@ -11,6 +11,7 @@ from websockets.client import WebSocketClientProtocol
 from sydney.constants import (
     BING_CHATHUB_URL,
     BING_CREATE_CONVERSATION_URL,
+    BING_GET_CONVERSATIONS_URL,
     DELIMETER,
     HEADERS,
 )
@@ -582,3 +583,39 @@ class SydneyClient:
         self.invocation_id = None
         self.number_of_messages = None
         self.max_messages = None
+
+    async def get_conversations(self) -> dict:
+        """
+        Get all conversations.
+
+        Returns
+        -------
+        dict
+            Dictionary containing `chats`, `result` and `clientId` fields.
+            The `chats` fields contains the list of conversations and info abot
+            those, `result` contains some metadata about the returned response and
+            `clientId` is the ID that the current Sydney client is using.
+        """
+        # Use _U cookie to create a conversation.
+        cookies = {"_U": self.bing_u_cookie}
+
+        session = ClientSession(
+            headers=HEADERS,
+            cookies=cookies,
+            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+            connector=TCPConnector(verify_ssl=False)
+            if self.use_proxy
+            else None,  # Resolve HTTPS issue when proxy support is enabled.
+        )
+
+        async with session.get(BING_GET_CONVERSATIONS_URL) as response:
+            if response.status != 200:
+                raise Exception(
+                    f"Failed to get conversations, received status: {response.status}"
+                )
+
+            response_dict = await response.json()
+
+        await session.close()
+
+        return response_dict
