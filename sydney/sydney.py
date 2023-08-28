@@ -592,7 +592,7 @@ class SydneyClient:
         -------
         dict
             Dictionary containing `chats`, `result` and `clientId` fields.
-            The `chats` fields contains the list of conversations and info abot
+            The `chats` fields contains the list of conversations and info about
             those, `result` contains some metadata about the returned response and
             `clientId` is the ID that the current Sydney client is using.
         """
