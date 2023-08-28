@@ -9,3 +9,6 @@ class ThrottledRequestException(Exception):
 
 class CaptchaChallengeException(Exception):
     pass
+
+class ConversationLimitException(Exception):
+    pass

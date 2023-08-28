@@ -24,6 +24,7 @@ from sydney.enums import (
 )
 from sydney.exceptions import (
     CaptchaChallengeException,
+    ConversationLimitException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -65,6 +66,8 @@ class SydneyClient:
         self.conversation_id: str | None = None
         self.client_id: str | None = None
         self.invocation_id: int | None = None
+        self.number_of_messages: int | None = None
+        self.max_messages: int | None = None
         self.wss_client: WebSocketClientProtocol | None = None
 
     async def __aenter__(self) -> SydneyClient:
@@ -199,6 +202,18 @@ class SydneyClient:
                         yield messages[0]["text"], None
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
+                    # Check if reached conversation limit.
+                    self.number_of_messages = response["item"]["throttling"].get(
+                        "numUserMessagesInConversation", 0
+                    )
+                    self.max_messages = response["item"]["throttling"][
+                        "maxNumUserMessagesInConversation"
+                    ]
+                    if self.number_of_messages == self.max_messages:
+                        raise ConversationLimitException(
+                            f"Reached conversation limit of {self.max_messages} messages"
+                        )
+
                     messages = response["item"].get("messages")
                     if not messages:
                         result_value = response["item"]["result"]["value"]
@@ -281,6 +296,18 @@ class SydneyClient:
                         yield messages[0]["text"]
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
+                    # Check if reached conversation limit.
+                    self.number_of_messages = response["item"]["throttling"].get(
+                        "numUserMessagesInConversation", 0
+                    )
+                    self.max_messages = response["item"]["throttling"][
+                        "maxNumUserMessagesInConversation"
+                    ]
+                    if self.number_of_messages == self.max_messages:
+                        raise ConversationLimitException(
+                            f"Reached conversation limit of {self.max_messages} messages"
+                        )
+
                     messages = response["item"].get("messages")
                     if not messages:
                         result_value = response["item"]["result"]["value"]
@@ -553,3 +580,5 @@ class SydneyClient:
         self.conversation_id = None
         self.client_id = None
         self.invocation_id = None
+        self.number_of_messages = None
+        self.max_messages = None
