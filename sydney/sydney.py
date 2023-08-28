@@ -10,7 +10,7 @@ from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
     BING_CHATHUB_URL,
-    BING_CREATE_CONVESATION_URL,
+    BING_CREATE_CONVERSATION_URL,
     DELIMETER,
     HEADERS,
 )
@@ -345,7 +345,7 @@ class SydneyClient:
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
 
-        async with session.get(BING_CREATE_CONVESATION_URL) as response:
+        async with session.get(BING_CREATE_CONVERSATION_URL) as response:
             if response.status != 200:
                 raise Exception(
                     f"Failed to create conversation, received status: {response.status}"
