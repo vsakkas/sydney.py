@@ -204,16 +204,17 @@ class SydneyClient:
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     # Check if reached conversation limit.
-                    self.number_of_messages = response["item"]["throttling"].get(
-                        "numUserMessagesInConversation", 0
-                    )
-                    self.max_messages = response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ]
-                    if self.number_of_messages == self.max_messages:
-                        raise ConversationLimitException(
-                            f"Reached conversation limit of {self.max_messages} messages"
+                    if response["item"].get("throttling"):
+                        self.number_of_messages = response["item"]["throttling"].get(
+                            "numUserMessagesInConversation", 0
                         )
+                        self.max_messages = response["item"]["throttling"][
+                            "maxNumUserMessagesInConversation"
+                        ]
+                        if self.number_of_messages == self.max_messages:
+                            raise ConversationLimitException(
+                                f"Reached conversation limit of {self.max_messages} messages"
+                            )
 
                     messages = response["item"].get("messages")
                     if not messages:
@@ -298,16 +299,17 @@ class SydneyClient:
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     # Check if reached conversation limit.
-                    self.number_of_messages = response["item"]["throttling"].get(
-                        "numUserMessagesInConversation", 0
-                    )
-                    self.max_messages = response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ]
-                    if self.number_of_messages == self.max_messages:
-                        raise ConversationLimitException(
-                            f"Reached conversation limit of {self.max_messages} messages"
+                    if response["item"].get("throttling"):
+                        self.number_of_messages = response["item"]["throttling"].get(
+                            "numUserMessagesInConversation", 0
                         )
+                        self.max_messages = response["item"]["throttling"][
+                            "maxNumUserMessagesInConversation"
+                        ]
+                        if self.number_of_messages == self.max_messages:
+                            raise ConversationLimitException(
+                                f"Reached conversation limit of {self.max_messages} messages"
+                            )
 
                     messages = response["item"].get("messages")
                     if not messages:
