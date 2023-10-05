@@ -9,6 +9,7 @@ async def test_ask_precise() -> bool:
     expected_responses = [
         "Hello! This is Bing. How can I help you today? 😊",
         "Hello! How can I help you today? 😊",
+        "Hello! How can I assist you today?"
     ]
 
     async with SydneyClient(style="precise") as sydney:
@@ -62,7 +63,11 @@ async def test_ask_creative() -> bool:
 
 @pytest.mark.asyncio
 async def test_ask_stream_precise() -> bool:
-    expected_responses = ["Hello! This is Bing. How can I help you today? 😊"]
+    expected_responses = [
+        "Hello! This is Bing. How can I help you today? 😊",
+        "Hello! How can I help you today? 😊",
+        "Hello! How can I assist you today?"
+    ]
 
     async with SydneyClient(style="precise") as sydney:
         response = ""
