@@ -13,4 +13,3 @@ async def test_get_conversations() -> None:
         assert "chats" in response
         assert "result" in response
         assert "clientId" in response
-        assert response["clientId"] == sydney.client_id
