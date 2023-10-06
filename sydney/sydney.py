@@ -238,7 +238,7 @@ class SydneyClient:
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
-                        if suggestions:
+                        if suggestions and messages[1].get("suggestedResponses"):
                             suggested_responses = [
                                 item["text"]
                                 for item in messages[1]["suggestedResponses"]
