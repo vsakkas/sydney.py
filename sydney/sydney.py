@@ -7,6 +7,7 @@ from typing import AsyncGenerator
 import websockets.client as websockets
 from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
+import urllib.parse
 
 from sydney.constants import (
     BING_CHATHUB_URL,
@@ -64,6 +65,7 @@ class SydneyClient:
             ConversationStyle, style.upper()
         )
         self.conversation_signature: str | None = None
+        self.encrypted_conversation_signature: str | None = None
         self.conversation_id: str | None = None
         self.client_id: str | None = None
         self.invocation_id: int | None = None
@@ -168,10 +170,14 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
+        
+        bing_chathub_url = BING_CHATHUB_URL
+        if self.encrypted_conversation_signature:
+            bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
 
         # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
-            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
+            bing_chathub_url, extra_headers=HEADERS, max_size=None
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
@@ -204,16 +210,17 @@ class SydneyClient:
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     # Check if reached conversation limit.
-                    self.number_of_messages = response["item"]["throttling"].get(
-                        "numUserMessagesInConversation", 0
-                    )
-                    self.max_messages = response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ]
-                    if self.number_of_messages == self.max_messages:
-                        raise ConversationLimitException(
-                            f"Reached conversation limit of {self.max_messages} messages"
+                    if response["item"].get("throttling"):
+                        self.number_of_messages = response["item"]["throttling"].get(
+                            "numUserMessagesInConversation", 0
                         )
+                        self.max_messages = response["item"]["throttling"][
+                            "maxNumUserMessagesInConversation"
+                        ]
+                        if self.number_of_messages == self.max_messages:
+                            raise ConversationLimitException(
+                                f"Reached conversation limit of {self.max_messages} messages"
+                            )
 
                     messages = response["item"].get("messages")
                     if not messages:
@@ -264,10 +271,14 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
+        
+        bing_chathub_url = BING_CHATHUB_URL
+        if self.encrypted_conversation_signature:
+            bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
 
         # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
-            BING_CHATHUB_URL, extra_headers=HEADERS, max_size=None
+            bing_chathub_url, extra_headers=HEADERS, max_size=None
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
@@ -298,16 +309,17 @@ class SydneyClient:
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     # Check if reached conversation limit.
-                    self.number_of_messages = response["item"]["throttling"].get(
-                        "numUserMessagesInConversation", 0
-                    )
-                    self.max_messages = response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ]
-                    if self.number_of_messages == self.max_messages:
-                        raise ConversationLimitException(
-                            f"Reached conversation limit of {self.max_messages} messages"
+                    if response["item"].get("throttling"):
+                        self.number_of_messages = response["item"]["throttling"].get(
+                            "numUserMessagesInConversation", 0
                         )
+                        self.max_messages = response["item"]["throttling"][
+                            "maxNumUserMessagesInConversation"
+                        ]
+                        if self.number_of_messages == self.max_messages:
+                            raise ConversationLimitException(
+                                f"Reached conversation limit of {self.max_messages} messages"
+                            )
 
                     messages = response["item"].get("messages")
                     if not messages:
@@ -360,7 +372,11 @@ class SydneyClient:
 
             self.conversation_id = response_dict["conversationId"]
             self.client_id = response_dict["clientId"]
-            self.conversation_signature = response_dict["conversationSignature"]
+            if response_dict.get("conversationSignature"):
+                self.conversation_signature = response_dict["conversationSignature"]
+            else:
+                self.conversation_signature = response.headers["X-Sydney-Conversationsignature"]
+                self.encrypted_conversation_signature = response.headers["X-Sydney-Encryptedconversationsignature"]
             self.invocation_id = 0
 
         await session.close()
