@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
 from os import environ
 from typing import AsyncGenerator
 
 import websockets.client as websockets
 from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
-import urllib.parse
 
 from sydney.constants import (
     BING_CHATHUB_URL,
@@ -170,7 +170,7 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
-        
+
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
             bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
@@ -271,7 +271,7 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
-        
+
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
             bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
@@ -372,11 +372,12 @@ class SydneyClient:
 
             self.conversation_id = response_dict["conversationId"]
             self.client_id = response_dict["clientId"]
-            if response_dict.get("conversationSignature"):
-                self.conversation_signature = response_dict["conversationSignature"]
-            else:
-                self.conversation_signature = response.headers["X-Sydney-Conversationsignature"]
-                self.encrypted_conversation_signature = response.headers["X-Sydney-Encryptedconversationsignature"]
+            self.conversation_signature = response.headers[
+                "X-Sydney-Conversationsignature"
+            ]
+            self.encrypted_conversation_signature = response.headers[
+                "X-Sydney-Encryptedconversationsignature"
+            ]
             self.invocation_id = 0
 
         await session.close()
