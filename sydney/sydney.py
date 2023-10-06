@@ -238,7 +238,7 @@ class SydneyClient:
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
-                        if suggestions:
+                        if suggestions and messages[1].get("suggestedResponses"):
                             suggested_responses = [
                                 item["text"]
                                 for item in messages[1]["suggestedResponses"]
@@ -405,9 +405,10 @@ class SydneyClient:
 
         Returns
         -------
-        str
+        str | dict | tuple
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
+            If suggestions is True, the function returns a list with the suggested responses.
         """
         async for response, suggested_responses in self._ask(
             prompt, citations, suggestions, raw, stream=False
@@ -445,9 +446,11 @@ class SydneyClient:
 
         Returns
         -------
-        str
+        str | dict | tuple
             The text response from Bing Chat. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
+            If suggestions is True, the function returns a list with the suggested responses. Only the final
+            yielded result contains the suggested responses.
         """
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
