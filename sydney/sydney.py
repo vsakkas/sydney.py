@@ -26,9 +26,7 @@ from sydney.enums import (
 )
 from sydney.exceptions import (
     CaptchaChallengeException,
-    CreateConversationException,
     ConversationLimitException,
-    GetConversationsException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -42,6 +40,13 @@ class SydneyClient:
         style: str = "balanced",
         bing_u_cookie: str | None = None,
         use_proxy: bool = False,
+        conversation_signature: str | None = None,
+        encrypted_conversation_signature: str | None = None,
+        conversation_id: str | None = None,
+        client_id: str | None = None,
+        invocation_id: int | None = None,
+        number_of_messages: int | None = None,
+        max_messages: int | None = None
     ) -> None:
         """
         Client for Bing Chat.
@@ -66,13 +71,13 @@ class SydneyClient:
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
-        self.conversation_signature: str | None = None
-        self.encrypted_conversation_signature: str | None = None
-        self.conversation_id: str | None = None
-        self.client_id: str | None = None
-        self.invocation_id: int | None = None
-        self.number_of_messages: int | None = None
-        self.max_messages: int | None = None
+        self.conversation_signature = conversation_signature
+        self.encrypted_conversation_signature = encrypted_conversation_signature
+        self.conversation_id = conversation_id
+        self.client_id = client_id
+        self.invocation_id = invocation_id
+        self.number_of_messages = number_of_messages
+        self.max_messages = max_messages
         self.wss_client: WebSocketClientProtocol | None = None
 
     async def __aenter__(self) -> SydneyClient:
@@ -240,18 +245,18 @@ class SydneyClient:
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
-                        if suggestions and messages[1].get("suggestedResponses"):
+                        if suggestions and messages[-1].get("suggestedResponses"):
                             suggested_responses = [
                                 item["text"]
-                                for item in messages[1]["suggestedResponses"]
+                                for item in messages[-1]["suggestedResponses"]
                             ]
 
                         if citations:
-                            yield messages[1]["adaptiveCards"][0]["body"][0][
+                            yield messages[-1]["adaptiveCards"][0]["body"][0][
                                 "text"
                             ], suggested_responses
                         else:
-                            yield messages[1]["text"], suggested_responses
+                            yield messages[-1]["text"], suggested_responses
 
                     # Exit, type 2 is the last message.
                     streaming = False
@@ -362,13 +367,13 @@ class SydneyClient:
 
         async with session.get(BING_CREATE_CONVERSATION_URL) as response:
             if response.status != 200:
-                raise CreateConversationException(
+                raise Exception(
                     f"Failed to create conversation, received status: {response.status}"
                 )
 
             response_dict = await response.json()
             if response_dict["result"]["value"] != "Success":
-                raise CreateConversationException(
+                raise Exception(
                     f"Failed to authenticate, received message: {response_dict['result']['message']}"
                 )
 
@@ -632,7 +637,7 @@ class SydneyClient:
 
         async with session.get(BING_GET_CONVERSATIONS_URL) as response:
             if response.status != 200:
-                raise GetConversationsException(
+                raise Exception(
                     f"Failed to get conversations, received status: {response.status}"
                 )
 
@@ -641,3 +646,30 @@ class SydneyClient:
         await session.close()
 
         return response_dict
+
+    async def save_conversation(self, filename) -> None:        
+        with open(filename, "w") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "conversation_signature": self.conversation_signature,
+                        "encrypted_conversation_signature": self.encrypted_conversation_signature,
+                        "conversation_id": self.conversation_id,
+                        "client_id": self.client_id,
+                        "invocation_id": self.invocation_id,
+                        # "number_of_messages": self.number_of_messages,
+                        # "max_messages": self.max_messages
+                    }
+                ),
+            )
+    
+    async def load_conversation(self, filename) -> None:
+        with open(filename) as f:
+            conversation = json.load(f)
+            self.conversation_signature = conversation["conversation_signature"]
+            self.encrypted_conversation_signature = conversation["encrypted_conversation_signature"]
+            self.conversation_id = conversation["conversation_id"]
+            self.client_id = conversation["client_id"]
+            self.invocation_id = conversation["invocation_id"]
+            # self.number_of_messages = conversation["number_of_messages"]
+            # self.max_messages = conversation["max_messages"]
