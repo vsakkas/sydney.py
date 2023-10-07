@@ -26,7 +26,9 @@ from sydney.enums import (
 )
 from sydney.exceptions import (
     CaptchaChallengeException,
+    CreateConversationException,
     ConversationLimitException,
+    GetConversationsException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -40,13 +42,6 @@ class SydneyClient:
         style: str = "balanced",
         bing_u_cookie: str | None = None,
         use_proxy: bool = False,
-        conversation_signature: str | None = None,
-        encrypted_conversation_signature: str | None = None,
-        conversation_id: str | None = None,
-        client_id: str | None = None,
-        invocation_id: int | None = None,
-        number_of_messages: int | None = None,
-        max_messages: int | None = None
     ) -> None:
         """
         Client for Bing Chat.
@@ -71,13 +66,13 @@ class SydneyClient:
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
-        self.conversation_signature = conversation_signature
-        self.encrypted_conversation_signature = encrypted_conversation_signature
-        self.conversation_id = conversation_id
-        self.client_id = client_id
-        self.invocation_id = invocation_id
-        self.number_of_messages = number_of_messages
-        self.max_messages = max_messages
+        self.conversation_signature: str | None = None
+        self.encrypted_conversation_signature: str | None = None
+        self.conversation_id: str | None = None
+        self.client_id: str | None = None
+        self.invocation_id: int | None = None
+        self.number_of_messages: int | None = None
+        self.max_messages: int | None = None
         self.wss_client: WebSocketClientProtocol | None = None
 
     async def __aenter__(self) -> SydneyClient:
