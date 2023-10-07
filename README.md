@@ -239,15 +239,15 @@ async with SydneyClient() as sydney:
 
 When something goes wrong, Sydney.py might throw one of the following exceptions:
 
-| Exception                   | Meaning                                  | Solution                |
-|-----------------------------|------------------------------------------|-------------------------|
-| NoConnectionException       | No connection to Bing Chat was found     | Retry                   |
-| NoResponseException         | No response was returned from Bing Chat  | Retry or use new cookie |
-| ThrottledRequestException   | Request is throttled                     | Wait and retry          |
-| CaptchaChallengeException   | Captcha challenge must be solved         | Use new cookie          |
-| ConversationLimitException  | Reached conversation limit of N messages | Start new conversation  |
-| CreateConversationException | Failed to create conversation            | Retry or use new cookie |
-| GetConversationsException   | Failed to get conversations              | Retry                   |
+| Exception                     | Meaning                                  | Solution                |
+|-------------------------------|------------------------------------------|-------------------------|
+| `NoConnectionException`       | No connection to Bing Chat was found     | Retry                   |
+| `NoResponseException`         | No response was returned from Bing Chat  | Retry or use new cookie |
+| `ThrottledRequestException`   | Request is throttled                     | Wait and retry          |
+| `CaptchaChallengeException`   | Captcha challenge must be solved         | Use new cookie          |
+| `ConversationLimitException`  | Reached conversation limit of N messages | Start new conversation  |
+| `CreateConversationException` | Failed to create conversation            | Retry or use new cookie |
+| `GetConversationsException`   | Failed to get conversations              | Retry                   |
 
 *For more detailed documentation and options, please refer to the code docstrings.*
 
