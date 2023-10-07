@@ -26,7 +26,9 @@ from sydney.enums import (
 )
 from sydney.exceptions import (
     CaptchaChallengeException,
+    CreateConversationException,
     ConversationLimitException,
+    GetConversationsException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -360,13 +362,13 @@ class SydneyClient:
 
         async with session.get(BING_CREATE_CONVERSATION_URL) as response:
             if response.status != 200:
-                raise Exception(
+                raise CreateConversationException(
                     f"Failed to create conversation, received status: {response.status}"
                 )
 
             response_dict = await response.json()
             if response_dict["result"]["value"] != "Success":
-                raise Exception(
+                raise CreateConversationException(
                     f"Failed to authenticate, received message: {response_dict['result']['message']}"
                 )
 
@@ -630,7 +632,7 @@ class SydneyClient:
 
         async with session.get(BING_GET_CONVERSATIONS_URL) as response:
             if response.status != 200:
-                raise Exception(
+                raise GetConversationsException(
                     f"Failed to get conversations, received status: {response.status}"
                 )
 

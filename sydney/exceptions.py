@@ -12,3 +12,9 @@ class CaptchaChallengeException(Exception):
 
 class ConversationLimitException(Exception):
     pass
+
+class CreateConversationException(Exception):
+    pass
+
+class GetConversationsException(Exception):
+    pass
