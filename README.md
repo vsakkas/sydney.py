@@ -44,12 +44,13 @@ poetry add sydney-py
 
 ### Prerequisites
 
-To use Sydney.py you first need to extract the `_U` cookie from [Bing](https://bing.com). The `_U` cookie is used to authenticate your requests to the Bing Chat API.
+To use Sydney.py you first need to extract the `_U` cookie from the Bing Chat sidebar. The `_U` cookie is used to authenticate your requests to the Bing Chat API.
 
-To get the `_U` cookie, follow these steps:
-- Log in to [Bing](https://bing.com) using your Microsoft account.
-- Open the developer tools in your browser (usually by pressing `F12` or right-clicking and selecting `Inspect element`).
-- Select the `Storage` tab and click on the `Cookies` option to view all cookies associated with the website.
+To get the `_U` cookie, follow these steps on Microsoft Edge:
+- Open the Bing Chat side bar by clicking the top right Bing button.
+- Write a message on the chat dialog that appears.
+- Open the developer tools in your browser (usually by pressing `F12` or right-clicking and selecting `Inspect`).
+- Select the `Application` tab and click on the `Cookies` option to view all cookies associated with `https://edgeservices.bing.com`.
 - Look for the `_U` cookie and click on it to expand its details.
 - Copy the value of the `_U` cookie (it should look like a long string of letters and numbers).
 
@@ -64,8 +65,6 @@ or, in your Python code:
 ```python
 os.environ["BING_U_COOKIE"] = "<your-cookie>"
 ```
-
-It is also recommended to manually write a message to Bing Chat on the [Bing](https://bing.com) page. This will result in a message box containing a `Verifying` message, which will then switch to `Success!` Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
 
 ### Example
 
