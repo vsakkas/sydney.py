@@ -15,6 +15,7 @@ from sydney.constants import (
     BING_GET_CONVERSATIONS_URL,
     BING_KBLOB_URL,
     DELIMETER,
+    CHAT_HEADERS,
     KBLOB_HEADERS
 )
 from sydney.enums import (
@@ -215,7 +216,7 @@ class SydneyClient:
 
         # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
-            bing_chathub_url, extra_headers=HEADERS, max_size=None
+            bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
@@ -316,7 +317,7 @@ class SydneyClient:
 
         # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
-            bing_chathub_url, extra_headers=HEADERS, max_size=None
+            bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
@@ -388,7 +389,7 @@ class SydneyClient:
         cookies = {"_U": self.bing_u_cookie}
 
         session = ClientSession(
-            headers=HEADERS,
+            headers=CHAT_HEADERS,
             cookies=cookies,
             trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
             connector=TCPConnector(verify_ssl=False)
@@ -661,7 +662,7 @@ class SydneyClient:
         cookies = {"_U": self.bing_u_cookie}
 
         session = ClientSession(
-            headers=HEADERS,
+            headers=CHAT_HEADERS,
             cookies=cookies,
             trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
             connector=TCPConnector(verify_ssl=False)
