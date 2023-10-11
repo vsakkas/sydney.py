@@ -14,6 +14,7 @@ from sydney.constants import (
     BING_CREATE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
     BING_KBLOB_URL,
+    BING_BLOB_URL,
     DELIMETER,
     CHAT_HEADERS,
     KBLOB_HEADERS
@@ -85,7 +86,7 @@ class SydneyClient:
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         await self.close_conversation()
 
-    def _build_ask_arguments(self, prompt: str) -> dict:
+    def _build_ask_arguments(self, prompt: str, blob_data: dict) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -97,7 +98,6 @@ class SydneyClient:
         ]
         for style in style_options:
             options_sets.append(style.strip())
-
         return {
             "arguments": [
                 {
@@ -109,12 +109,14 @@ class SydneyClient:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
+                        "imageUrl": blob_data["processedBlobId"],
+                        "originalImageUrl": blob_data["blobId"]
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
                         "id": self.client_id,
                     },
-                    "conversationId": self.conversation_id,
+                    "conversationId": self.conversation_id
                 }
             ],
             "invocationId": str(self.invocation_id),
@@ -175,8 +177,7 @@ class SydneyClient:
             if self.use_proxy
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
-
-        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"" + attachment + "\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"\",\"convotone\":\"Balanced\"}}}\r\n--\r\n"
+        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"" + attachment + "\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"" + self.conversation_id + "\",\"convotone\":\"" + str(self.conversation_style) + "\"}}}\r\n--\r\n"
 
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
@@ -207,8 +208,17 @@ class SydneyClient:
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
 
+        blob_data = {
+            "blobId": None,
+            "processedBlobId": None
+        }
         if attachment:
-            await self._uploadAttachment(attachment)
+            attachment_info = await self._uploadAttachment(attachment)
+            blob_data = {
+                "blobId": BING_BLOB_URL + attachment_info['blobId'],
+                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
+            }
+            print(blob_data)
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
@@ -221,7 +231,7 @@ class SydneyClient:
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
 
-        request = self._build_ask_arguments(prompt)
+        request = self._build_ask_arguments(prompt, blob_data)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))

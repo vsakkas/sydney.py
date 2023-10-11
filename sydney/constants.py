@@ -16,5 +16,6 @@ BING_CREATE_CONVERSATION_URL = "https://edgeservices.bing.com/edgesvc/turing/con
 BING_GET_CONVERSATIONS_URL = "https://www.bing.com/turing/conversation/chats"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
 BING_KBLOB_URL = "https://www.bing.com/images/kblob"
+BING_BLOB_URL = "https://www.bing.com/images/blob?bcid="
 
 DELIMETER = "\x1e"  # Record separator character.
