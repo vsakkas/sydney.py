@@ -446,7 +446,7 @@ class SydneyClient:
         ----------
         prompt : str
             The prompt that needs to be sent to Bing Chat.
-        attachments : str
+        attachment : str
             The URL to an image to be included with the prompt
         citations : bool, optional
             Whether to return any cited text. Default is False.
