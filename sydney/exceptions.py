@@ -18,3 +18,6 @@ class CreateConversationException(Exception):
 
 class GetConversationsException(Exception):
     pass
+
+class ImageUploadException(Exception):
+    pass

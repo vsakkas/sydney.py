@@ -13,8 +13,9 @@ from sydney.constants import (
     BING_CHATHUB_URL,
     BING_CREATE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
+    BING_KBLOB_URL,
     DELIMETER,
-    HEADERS,
+    KBLOB_HEADERS
 )
 from sydney.enums import (
     ComposeFormat,
@@ -29,6 +30,7 @@ from sydney.exceptions import (
     CreateConversationException,
     ConversationLimitException,
     GetConversationsException,
+    ImageUploadException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -158,9 +160,40 @@ class SydneyClient:
             "type": 4,
         }
 
+    async def _uploadAttachment(
+            self,
+            attachment: str
+    ):
+        cookies = {"_U": self.bing_u_cookie}
+
+        session = ClientSession(
+            headers=KBLOB_HEADERS,
+            cookies=cookies,
+            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+            connector=TCPConnector(verify_ssl=False)
+            if self.use_proxy
+            else None,  # Resolve HTTPS issue when proxy support is enabled.
+        )
+
+        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"" + attachment + "\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"\",\"convotone\":\"Balanced\"}}}\r\n--\r\n"
+
+        async with session.post(BING_KBLOB_URL, data=data) as response:
+            if response.status != 200:
+                raise ImageUploadException(
+                    f"Failed to upload image, received status: {response.status}"
+                )
+            response_dict = await response.json()
+            if len(response_dict["blobId"]) == 0 or len(response_dict["processedBlobId"]) == 0:
+                raise ImageUploadException(
+                        f"Failed to upload image, received empty image info from Bing"
+                    )
+        await session.close()
+        return response_dict
+
     async def _ask(
         self,
         prompt: str,
+        attachment: str = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -172,6 +205,9 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
+
+        if attachment:
+            await self._uploadAttachment(attachment)
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
@@ -387,6 +423,7 @@ class SydneyClient:
     async def ask(
         self,
         prompt: str,
+        attachment: str = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -398,6 +435,8 @@ class SydneyClient:
         ----------
         prompt : str
             The prompt that needs to be sent to Bing Chat.
+        attachments : str
+            The URL to an image to be included with the prompt
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -413,7 +452,7 @@ class SydneyClient:
             If suggestions is True, the function returns a list with the suggested responses.
         """
         async for response, suggested_responses in self._ask(
-            prompt, citations, suggestions, raw, stream=False
+            prompt, attachment, citations, suggestions, raw, stream=False
         ):
             if suggestions:
                 return response, suggested_responses
