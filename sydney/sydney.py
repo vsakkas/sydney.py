@@ -74,6 +74,7 @@ class SydneyClient:
         self.number_of_messages: int | None = None
         self.max_messages: int | None = None
         self.wss_client: WebSocketClientProtocol | None = None
+        self.session: ClientSession | None = None
 
     async def __aenter__(self) -> SydneyClient:
         await self.start_conversation()
@@ -81,6 +82,25 @@ class SydneyClient:
 
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         await self.close_conversation()
+
+    async def _get_session(self, force_close: bool = False) -> ClientSession:
+        # Use _U cookie to create a conversation.
+        cookies = {"_U": self.bing_u_cookie}
+
+        if self.session and force_close:
+            await self.session.close()
+
+        if not self.session:
+            self.session = ClientSession(
+                headers=HEADERS,
+                cookies=cookies,
+                trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+                connector=TCPConnector(verify_ssl=False)
+                if self.use_proxy
+                else None,  # Resolve HTTPS issue when proxy support is enabled.
+            )
+
+        return self.session
 
     def _build_ask_arguments(self, prompt: str) -> dict:
         style_options = self.conversation_style.value.split(",")
@@ -348,17 +368,7 @@ class SydneyClient:
         """
         Connect to Bing Chat and create a new conversation.
         """
-        # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie}
-
-        session = ClientSession(
-            headers=HEADERS,
-            cookies=cookies,
-            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-            connector=TCPConnector(verify_ssl=False)
-            if self.use_proxy
-            else None,  # Resolve HTTPS issue when proxy support is enabled.
-        )
+        session = await self._get_session(force_close=True)
 
         async with session.get(BING_CREATE_CONVERSATION_URL) as response:
             if response.status != 200:
@@ -381,8 +391,6 @@ class SydneyClient:
                 "X-Sydney-Encryptedconversationsignature"
             ]
             self.invocation_id = 0
-
-        await session.close()
 
     async def ask(
         self,
@@ -593,10 +601,12 @@ class SydneyClient:
         """
         Close all connections to Bing Chat. Clear conversation information.
         """
-        if self.wss_client:
-            if not self.wss_client.closed:
-                await self.wss_client.close()
-                self.wss_client = None
+        if self.wss_client and not self.wss_client.closed:
+            await self.wss_client.close()
+            self.wss_client = None
+
+        if self.session and not self.session.closed:
+            await self.session.close()
 
         # Clear conversation information.
         self.conversation_signature = None
@@ -618,17 +628,7 @@ class SydneyClient:
             those, `result` contains some metadata about the returned response and
             `clientId` is the ID that the current Sydney client is using.
         """
-        # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie}
-
-        session = ClientSession(
-            headers=HEADERS,
-            cookies=cookies,
-            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-            connector=TCPConnector(verify_ssl=False)
-            if self.use_proxy
-            else None,  # Resolve HTTPS issue when proxy support is enabled.
-        )
+        session = await self._get_session()
 
         async with session.get(BING_GET_CONVERSATIONS_URL) as response:
             if response.status != 200:
@@ -637,7 +637,5 @@ class SydneyClient:
                 )
 
             response_dict = await response.json()
-
-        await session.close()
 
         return response_dict
