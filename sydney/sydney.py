@@ -218,7 +218,6 @@ class SydneyClient:
                 "blobId": BING_BLOB_URL + attachment_info['blobId'],
                 "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
             }
-            print(blob_data)
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
