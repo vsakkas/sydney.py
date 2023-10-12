@@ -86,7 +86,7 @@ class SydneyClient:
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         await self.close_conversation()
 
-    def _build_ask_arguments(self, prompt: str, blob_data: dict) -> dict:
+    async def _build_ask_arguments(self, prompt: str, attachment: str | None) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -229,7 +229,7 @@ class SydneyClient:
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
 
-        request = self._build_ask_arguments(prompt, blob_data)
+        request = await self._build_ask_arguments(prompt, attachment)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
