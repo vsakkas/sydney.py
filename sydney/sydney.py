@@ -78,6 +78,7 @@ class SydneyClient:
         self.number_of_messages: int | None = None
         self.max_messages: int | None = None
         self.wss_client: WebSocketClientProtocol | None = None
+        self.session: ClientSession | None = None
 
     async def __aenter__(self) -> SydneyClient:
         await self.start_conversation()
@@ -85,6 +86,25 @@ class SydneyClient:
 
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         await self.close_conversation()
+
+    async def _get_session(self, force_close: bool = False) -> ClientSession:
+        # Use _U cookie to create a conversation.
+        cookies = {"_U": self.bing_u_cookie}
+
+        if self.session and force_close:
+            await self.session.close()
+
+        if not self.session:
+            self.session = ClientSession(
+                headers=HEADERS,
+                cookies=cookies,
+                trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+                connector=TCPConnector(verify_ssl=False)
+                if self.use_proxy
+                else None,  # Resolve HTTPS issue when proxy support is enabled.
+            )
+
+        return self.session
 
     async def _build_ask_arguments(self, prompt: str, attachment: str | None = None) -> dict:
         style_options = self.conversation_style.value.split(",")
@@ -235,6 +255,10 @@ class SydneyClient:
         suggestions: bool = False,
         raw: bool = False,
         stream: bool = False,
+        compose: bool = False,
+        tone: ComposeTone | None = None,
+        format: ComposeFormat | None = None,
+        length: ComposeLength | None = None,
     ) -> AsyncGenerator[tuple[str | dict, list | None], None]:
         if (
             self.conversation_id is None
@@ -254,7 +278,10 @@ class SydneyClient:
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
 
-        request = await self._build_ask_arguments(prompt, attachment)
+        if compose:
+            request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
+        else:
+            request = await self._build_ask_arguments(prompt, attachment)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
@@ -276,6 +303,11 @@ class SydneyClient:
                     if raw:
                         yield response, None
                     elif citations:
+                        inlines = messages[0]["adaptiveCards"][0]["body"][0].get(
+                            "inlines"
+                        )
+                        if inlines:  # Skip "Searching the web for..." message.
+                            continue
                         yield messages[0]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
                         yield messages[0]["text"], None
@@ -310,14 +342,14 @@ class SydneyClient:
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
-                        if suggestions and messages[1].get("suggestedResponses"):
+                        if suggestions and messages[-1].get("suggestedResponses"):
                             suggested_responses = [
                                 item["text"]
-                                for item in messages[1]["suggestedResponses"]
+                                for item in messages[-1]["suggestedResponses"]
                             ]
 
                         if citations:
-                            yield messages[1]["adaptiveCards"][0]["body"][0][
+                            yield messages[-1]["adaptiveCards"][0]["body"][0][
                                 "text"
                             ], suggested_responses
                         else:
@@ -328,107 +360,11 @@ class SydneyClient:
 
         await self.wss_client.close()
 
-    async def _compose(
-        self,
-        prompt: str,
-        tone: ComposeTone,
-        format: ComposeFormat,
-        length: ComposeLength,
-        raw: bool,
-        stream: bool,
-    ) -> AsyncGenerator[str | dict, None]:
-        if (
-            self.conversation_id is None
-            or self.client_id is None
-            or self.invocation_id is None
-        ):
-            raise NoConnectionException("No connection to Bing Chat was found")
-
-        bing_chathub_url = BING_CHATHUB_URL
-        if self.encrypted_conversation_signature:
-            bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
-
-        # Create a websocket connection Bing Chat.
-        self.wss_client = await websockets.connect(
-            bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
-        )
-        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
-        await self.wss_client.recv()
-
-        request = self._build_compose_arguments(prompt, tone, format, length)
-        self.invocation_id += 1
-
-        await self.wss_client.send(as_json(request))
-
-        streaming = True
-        while streaming:
-            objects = str(await self.wss_client.recv()).split(DELIMETER)
-            for obj in objects:
-                if not obj:
-                    continue
-                response = json.loads(obj)
-                # Handle type 1 messages when streaming is enabled.
-                if stream and response.get("type") == 1:
-                    messages = response["arguments"][0].get("messages")
-                    # Skip on empty response.
-                    if not messages:
-                        continue
-
-                    if raw:
-                        yield response
-                    else:
-                        yield messages[0]["text"]
-                # Handle type 2 messages.
-                elif response.get("type") == 2:
-                    # Check if reached conversation limit.
-                    if response["item"].get("throttling"):
-                        self.number_of_messages = response["item"]["throttling"].get(
-                            "numUserMessagesInConversation", 0
-                        )
-                        self.max_messages = response["item"]["throttling"][
-                            "maxNumUserMessagesInConversation"
-                        ]
-                        if self.number_of_messages == self.max_messages:
-                            raise ConversationLimitException(
-                                f"Reached conversation limit of {self.max_messages} messages"
-                            )
-
-                    messages = response["item"].get("messages")
-                    if not messages:
-                        result_value = response["item"]["result"]["value"]
-                        # Throttled - raise error.
-                        if result_value == ResultValue.THROTTLED.value:
-                            raise ThrottledRequestException("Request is throttled")
-                        # Captcha chalennge - user needs to solve captcha manually.
-                        elif result_value == ResultValue.CAPTCHA_CHALLENGE.value:
-                            raise CaptchaChallengeException("Solve CAPTCHA to continue")
-                        return  # Return empty message.
-
-                    if raw:
-                        yield response
-                    else:
-                        yield messages[1]["text"]
-
-                    # Exit, type 2 is the last message.
-                    streaming = False
-
-        await self.wss_client.close()
-
     async def start_conversation(self) -> None:
         """
         Connect to Bing Chat and create a new conversation.
         """
-        # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie}
-
-        session = ClientSession(
-            headers=CHAT_HEADERS,
-            cookies=cookies,
-            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-            connector=TCPConnector(verify_ssl=False)
-            if self.use_proxy
-            else None,  # Resolve HTTPS issue when proxy support is enabled.
-        )
+        session = await self._get_session(force_close=True)
 
         async with session.get(BING_CREATE_CONVERSATION_URL) as response:
             if response.status != 200:
@@ -451,8 +387,6 @@ class SydneyClient:
                 "X-Sydney-Encryptedconversationsignature"
             ]
             self.invocation_id = 0
-
-        await session.close()
 
     async def ask(
         self,
@@ -486,7 +420,7 @@ class SydneyClient:
             If suggestions is True, the function returns a list with the suggested responses.
         """
         async for response, suggested_responses in self._ask(
-            prompt, attachment, citations, suggestions, raw, stream=False
+            prompt, attachment, citations, suggestions, raw, stream=False, compose=False
         ):
             if suggestions:
                 return response, suggested_responses
@@ -529,7 +463,7 @@ class SydneyClient:
         """
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
-            prompt, citations, suggestions, raw, stream=True
+            prompt, citations, suggestions, raw, stream=True, compose=False
         ):
             if raw:
                 yield response
@@ -581,8 +515,14 @@ class SydneyClient:
         compose_format = getattr(ComposeFormat, format.upper())
         compose_length = getattr(ComposeLength, length.upper())
 
-        async for response in self._compose(
-            prompt, compose_tone, compose_format, compose_length, raw, stream=False
+        async for response, _ in self._ask(
+            prompt,
+            raw,
+            stream=False,
+            compose=True,
+            tone=compose_tone,
+            format=compose_format,
+            length=compose_length,
         ):
             return response
 
@@ -631,8 +571,14 @@ class SydneyClient:
         compose_length = getattr(ComposeLength, length.upper())
 
         previous_response: str | dict = ""
-        async for response in self._compose(
-            prompt, compose_tone, compose_format, compose_length, raw, stream=True
+        async for response, _ in self._ask(
+            prompt,
+            raw,
+            stream=True,
+            compose=True,
+            tone=compose_tone,
+            format=compose_format,
+            length=compose_length,
         ):
             if raw:
                 yield response
@@ -666,10 +612,12 @@ class SydneyClient:
         """
         Close all connections to Bing Chat. Clear conversation information.
         """
-        if self.wss_client:
-            if not self.wss_client.closed:
-                await self.wss_client.close()
-                self.wss_client = None
+        if self.wss_client and not self.wss_client.closed:
+            await self.wss_client.close()
+            self.wss_client = None
+
+        if self.session and not self.session.closed:
+            await self.session.close()
 
         # Clear conversation information.
         self.conversation_signature = None
@@ -691,17 +639,7 @@ class SydneyClient:
             those, `result` contains some metadata about the returned response and
             `clientId` is the ID that the current Sydney client is using.
         """
-        # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie}
-
-        session = ClientSession(
-            headers=CHAT_HEADERS,
-            cookies=cookies,
-            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-            connector=TCPConnector(verify_ssl=False)
-            if self.use_proxy
-            else None,  # Resolve HTTPS issue when proxy support is enabled.
-        )
+        session = await self._get_session()
 
         async with session.get(BING_GET_CONVERSATIONS_URL) as response:
             if response.status != 200:
@@ -710,7 +648,5 @@ class SydneyClient:
                 )
 
             response_dict = await response.json()
-
-        await session.close()
 
         return response_dict

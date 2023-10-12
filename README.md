@@ -133,7 +133,7 @@ The available options are `creative`, `balanced` and `precise`.
 You can reset the conversation in order to make the client forget the previous conversation. You can also change the conversation style without creating a new client:
 
 ```python
-async withSydneyClient() as sydney:
+async with SydneyClient() as sydney:
     # Conversation
     await sydney.reset_conversation(style="creative")
 ```
