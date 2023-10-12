@@ -43,6 +43,7 @@ async def test_ask_balanced() -> bool:
 @pytest.mark.asyncio
 async def test_ask_creative() -> bool:
     expected_responses = [
+        "Hello! How can I help you today? 😊",
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
@@ -104,6 +105,7 @@ async def test_ask_stream_balanced() -> bool:
 @pytest.mark.asyncio
 async def test_ask_stream_creative() -> bool:
     expected_responses = [
+        "Hello! How can I help you today? 😊",
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
