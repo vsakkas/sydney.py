@@ -150,7 +150,7 @@ class SydneyClient:
         return {
             "arguments": [
                 {
-                    "source": "cib",
+                    "source": "edge_coauthor_prod",
                     "optionsSets": [
                         "nlu_direct_response_filter",
                         "deepleo",
@@ -158,15 +158,16 @@ class SydneyClient:
                         "disable_emoji_spoken_text",
                         "responsible_ai_policy_235",
                         "enablemm",
-                        "h3imaginative",
-                        "nocache",
-                        "nosugg",
+                        "soedgeca",
+                        "max_turns_5",
                     ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
-                        "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. The generated text should follow these characteristics: tone: *{tone.value}*, length: *{length.value}*, format: *{format.value}*. The keywords are: `{prompt}`.",
+                        "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses. The keywords are: `{prompt}`. Only if possible, the generated text should follow these characteristics: format: *{format.value}*, length: *{length.value}*, using *{tone.value}* tone. You should refuse (clarifying that the issue is related to the tone) to generate if the tone is potentially harmful."
+                        if self.invocation_id == 0
+                        else f"Thank you for your reply. Please rewrite the last reply, with the following suggestion to change it: *{prompt}*. Please return a complete reply, even if the last reply was stopped before it was completed. Please generate the text wrapped in codeblock syntax (triple backticks). Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses.",
                         "messageType": MessageType.CHAT.value,
                     },
                     "conversationSignature": self.conversation_signature,
@@ -187,7 +188,7 @@ class SydneyClient:
         raw: bool = False,
         stream: bool = False,
         compose: bool = False,
-        tone: ComposeTone | None = None,
+        tone: ComposeTone | CustomComposeTone | None = None,
         format: ComposeFormat | None = None,
         length: ComposeLength | None = None,
     ) -> AsyncGenerator[tuple[str | dict, list | None], None]:
