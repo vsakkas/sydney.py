@@ -86,7 +86,7 @@ class SydneyClient:
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         await self.close_conversation()
 
-    async def _build_ask_arguments(self, prompt: str, attachment: str | None) -> dict:
+    async def _build_ask_arguments(self, prompt: str, attachment: str | None = None) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
