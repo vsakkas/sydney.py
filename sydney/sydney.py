@@ -138,7 +138,7 @@ class SydneyClient:
                     "participant": {
                         "id": self.client_id,
                     },
-                    "conversationId": self.conversation_id
+                    "conversationId": self.conversation_id,
                 }
             ],
             "invocationId": str(self.invocation_id),
