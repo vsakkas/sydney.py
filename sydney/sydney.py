@@ -95,6 +95,18 @@ class SydneyClient:
             "responsible_ai_policy_235",
             "enablemm",
             "dv3sugg",
+            "iyxapbing",
+            "iycapbing",
+            "galileo",
+            "saharagenconv5",
+            "h3imagntvwcp",
+            "seqnumtts",
+            "log2sph",
+            "savememfilter",
+            "uprofgen",
+            "uprofupd",
+            "uprofupdasy",
+            "eredirecturl",
         ]
         for style in style_options:
             options_sets.append(style.strip())
