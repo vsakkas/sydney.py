@@ -189,6 +189,20 @@ class SydneyClient:
             self,
             attachment: str
     ):
+        """
+        Uploads a image to Bing's servers.
+
+        Parameters
+        ----------
+        attachment : str
+            The attachment to be uploaded.
+
+        Returns
+        -------
+        dict
+            The response from Bing. "blobId" and "processedBlobId" are parameters that can be passed 
+            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image on Bing's servers.
+        """
         cookies = {"_U": self.bing_u_cookie}
 
         session = ClientSession(
