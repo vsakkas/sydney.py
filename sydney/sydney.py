@@ -213,8 +213,7 @@ class SydneyClient:
             if self.use_proxy
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
-        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"" + attachment + "\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"" + self.conversation_id + "\",\"convotone\":\"" + str(self.conversation_style) + "\"}}}\r\n--\r\n"
-
+        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"%s\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"%s\",\"convotone\":\"%s\"}}}\r\n--\r\n" % (attachment, self.conversation_id, str(self.conversation_style))
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
                 raise ImageUploadException(
