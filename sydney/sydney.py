@@ -353,7 +353,7 @@ class SydneyClient:
                                 "text"
                             ], suggested_responses
                         else:
-                            yield messages[1]["text"], suggested_responses
+                            yield messages[-1]["text"], suggested_responses
 
                     # Exit, type 2 is the last message.
                     streaming = False
