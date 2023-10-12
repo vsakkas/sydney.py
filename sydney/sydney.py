@@ -98,6 +98,16 @@ class SydneyClient:
         ]
         for style in style_options:
             options_sets.append(style.strip())
+        blob_data = {
+            "blobId": None,
+            "processedBlobId": None
+        }
+        if attachment:
+            attachment_info = await self._uploadAttachment(attachment)
+            blob_data = {
+                "blobId": BING_BLOB_URL + attachment_info['blobId'],
+                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
+            }
         return {
             "arguments": [
                 {
@@ -207,17 +217,6 @@ class SydneyClient:
             or self.invocation_id is None
         ):
             raise NoConnectionException("No connection to Bing Chat was found")
-
-        blob_data = {
-            "blobId": None,
-            "processedBlobId": None
-        }
-        if attachment:
-            attachment_info = await self._uploadAttachment(attachment)
-            blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info['blobId'],
-                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
-            }
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
