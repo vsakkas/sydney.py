@@ -432,7 +432,7 @@ class SydneyClient:
     async def ask(
         self,
         prompt: str,
-        attachment: str = None,
+        attachment: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
