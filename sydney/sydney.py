@@ -349,7 +349,12 @@ class SydneyClient:
             If suggestions is True, the function returns a list with the suggested responses.
         """
         async for response, suggested_responses in self._ask(
-            prompt, citations, suggestions, raw, stream=False, compose=False
+            prompt,
+            citations=citations,
+            suggestions=suggestions,
+            raw=raw,
+            stream=False,
+            compose=False,
         ):
             if suggestions:
                 return response, suggested_responses
@@ -392,7 +397,12 @@ class SydneyClient:
         """
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
-            prompt, citations, suggestions, raw, stream=True, compose=False
+            prompt,
+            citations=citations,
+            suggestions=suggestions,
+            raw=raw,
+            stream=True,
+            compose=False,
         ):
             if raw:
                 yield response
@@ -411,8 +421,9 @@ class SydneyClient:
         tone: str = "professional",
         format: str = "paragraph",
         length: str = "short",
+        suggestions: bool = False,
         raw: bool = False,
-    ) -> str | dict:
+    ) -> str | dict | tuple[str | dict, list | None]:
         """
         Send a prompt to Bing Chat and compose text based on the given prompt, tone,
         format, and length.
@@ -430,6 +441,8 @@ class SydneyClient:
         length : str, optional
             The length of the response. Must be one of the options listed in the `ComposeLength`
             enum. Default is "short".
+        suggestions : bool, optional
+            Whether to return any suggested user responses. Default is False.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -444,16 +457,21 @@ class SydneyClient:
         compose_format = getattr(ComposeFormat, format.upper())
         compose_length = getattr(ComposeLength, length.upper())
 
-        async for response, _ in self._ask(
+        async for response, suggested_responses in self._ask(
             prompt,
-            raw,
+            citations=False,
+            suggestions=suggestions,
+            raw=raw,
             stream=False,
             compose=True,
             tone=compose_tone,
             format=compose_format,
             length=compose_length,
         ):
-            return response
+            if suggestions:
+                return response, suggested_responses
+            else:
+                return response
 
         raise NoResponseException("No response was returned")
 
@@ -463,8 +481,9 @@ class SydneyClient:
         tone: str = "professional",
         format: str = "paragraph",
         length: str = "short",
+        suggestions: bool = False,
         raw: bool = False,
-    ) -> AsyncGenerator[str | dict, None]:
+    ) -> AsyncGenerator[str | dict | tuple[str | dict, list | None], None]:
         """
         Send a prompt to Bing Chat, compose and stream text based on the given prompt, tone,
         format, and length.
@@ -485,6 +504,8 @@ class SydneyClient:
         length : str, optional
             The length of the response. Must be one of the options listed in the `ComposeLength`
             enum. Default is "short".
+        suggestions : bool, optional
+            Whether to return any suggested user responses. Default is False.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -495,14 +516,16 @@ class SydneyClient:
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
-        compose_tone = getattr(ComposeTone, tone.upper())
+        compose_tone = getattr(ComposeTone, tone.upper(), CustomComposeTone(tone))
         compose_format = getattr(ComposeFormat, format.upper())
         compose_length = getattr(ComposeLength, length.upper())
 
         previous_response: str | dict = ""
-        async for response, _ in self._ask(
+        async for response, suggested_responses in self._ask(
             prompt,
-            raw,
+            citations=False,
+            suggestions=suggestions,
+            raw=raw,
             stream=True,
             compose=True,
             tone=compose_tone,
@@ -515,7 +538,10 @@ class SydneyClient:
             else:
                 new_response = response[len(previous_response) :]
                 previous_response = response
-                yield new_response
+                if suggestions:
+                    yield new_response, suggested_responses
+                else:
+                    yield new_response
 
     async def reset_conversation(self, style: str | None = None) -> None:
         """
