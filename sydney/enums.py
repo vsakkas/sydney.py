@@ -59,6 +59,15 @@ class ComposeLength(Enum):
     LONG = "long"
 
 
+class CustomComposeTone:
+    """
+    Class to represent custom Bing Chat compose tones.
+    """
+
+    def __init__(self, value) -> None:
+        self.value = value
+
+
 class MessageType(Enum):
     """
     Allowed message types. Supported options are:
@@ -91,6 +100,7 @@ class ResultValue(Enum):
     Bing Chat result values on raw responses. Supported options are:
     - `Success`
     - `Throttled`
+    - `CaptchaChallenge`
     """
 
     SUCCESS = "Success"

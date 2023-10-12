@@ -21,6 +21,7 @@ from sydney.enums import (
     ComposeLength,
     ComposeTone,
     ConversationStyle,
+    CustomComposeTone,
     MessageType,
     ResultValue,
 )
@@ -142,7 +143,7 @@ class SydneyClient:
     def _build_compose_arguments(
         self,
         prompt: str,
-        tone: ComposeTone,
+        tone: ComposeTone | CustomComposeTone,
         format: ComposeFormat,
         length: ComposeLength,
     ) -> dict:
@@ -438,7 +439,7 @@ class SydneyClient:
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
-        compose_tone = getattr(ComposeTone, tone.upper())
+        compose_tone = getattr(ComposeTone, tone.upper(), CustomComposeTone(tone))
         compose_format = getattr(ComposeFormat, format.upper())
         compose_length = getattr(ComposeLength, length.upper())
 
