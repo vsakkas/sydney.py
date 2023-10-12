@@ -43,7 +43,7 @@ class ComposeFormat(Enum):
     PARAGRAPH = "paragraph"
     EMAIL = "email"
     BLOGPOST = "blog post"
-    IDEAS = "ideas"
+    IDEAS = "bullet point list"
 
 
 class ComposeLength(Enum):
