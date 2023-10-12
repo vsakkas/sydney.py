@@ -13,3 +13,14 @@ async def test_get_conversations() -> None:
         assert "chats" in response
         assert "result" in response
         assert "clientId" in response
+
+
+@pytest.mark.asyncio
+async def test_get_conversations_no_start_conversation() -> None:
+    sydney = SydneyClient()
+
+    response = await sydney.get_conversations()
+
+    assert "chats" in response
+    assert "result" in response
+    assert "clientId" in response
