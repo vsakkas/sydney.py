@@ -96,7 +96,7 @@ class SydneyClient:
 
         if not self.session:
             self.session = ClientSession(
-                headers=HEADERS,
+                headers=CHAT_HEADERS,
                 cookies=cookies,
                 trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
                 connector=TCPConnector(verify_ssl=False)
@@ -404,7 +404,7 @@ class SydneyClient:
         prompt : str
             The prompt that needs to be sent to Bing Chat.
         attachment : str
-            The URL to an image to be included with the prompt
+            The URL to an image to be included with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -432,6 +432,7 @@ class SydneyClient:
     async def ask_stream(
         self,
         prompt: str,
+        attachment: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -446,6 +447,8 @@ class SydneyClient:
         ----------
         prompt : str
             The prompt that needs to be sent to Bing Chat.
+        attachment : str
+            The URL to an image to be included with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -463,7 +466,7 @@ class SydneyClient:
         """
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
-            prompt, citations, suggestions, raw, stream=True, compose=False
+            prompt, attachment, citations, suggestions, raw, stream=True, compose=False
         ):
             if raw:
                 yield response
@@ -517,6 +520,7 @@ class SydneyClient:
 
         async for response, _ in self._ask(
             prompt,
+            None,
             raw,
             stream=False,
             compose=True,
@@ -573,6 +577,7 @@ class SydneyClient:
         previous_response: str | dict = ""
         async for response, _ in self._ask(
             prompt,
+            None,
             raw,
             stream=True,
             compose=True,
