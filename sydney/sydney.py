@@ -106,7 +106,7 @@ class SydneyClient:
 
         return self.session
 
-    def _build_ask_arguments(self, prompt: str, attachment: dict | None = None) -> dict:
+    def _build_ask_arguments(self, prompt: str, attachment_info: dict | None = None) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -134,10 +134,10 @@ class SydneyClient:
             "blobId": None,
             "processedBlobId": None
         }
-        if attachment:
+        if attachment_info:
             blob_data = {
-                "blobId": BING_BLOB_URL + attachment['blobId'],
-                "processedBlobId": BING_BLOB_URL + attachment['processedBlobId']
+                "blobId": BING_BLOB_URL + attachment_info['blobId'],
+                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
             }
         return {
             "arguments": [
