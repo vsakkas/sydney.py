@@ -43,7 +43,7 @@ class ComposeFormat(Enum):
     PARAGRAPH = "paragraph"
     EMAIL = "email"
     BLOGPOST = "blog post"
-    IDEAS = "ideas"
+    IDEAS = "bullet point list"
 
 
 class ComposeLength(Enum):
@@ -57,6 +57,15 @@ class ComposeLength(Enum):
     SHORT = "short"
     MEDIUM = "medium"
     LONG = "long"
+
+
+class CustomComposeTone:
+    """
+    Class to represent custom Bing Chat compose tones.
+    """
+
+    def __init__(self, value) -> None:
+        self.value = value
 
 
 class MessageType(Enum):
@@ -91,6 +100,7 @@ class ResultValue(Enum):
     Bing Chat result values on raw responses. Supported options are:
     - `Success`
     - `Throttled`
+    - `CaptchaChallenge`
     """
 
     SUCCESS = "Success"
