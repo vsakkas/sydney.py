@@ -13,8 +13,11 @@ from sydney.constants import (
     BING_CHATHUB_URL,
     BING_CREATE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
+    BING_KBLOB_URL,
+    BING_BLOB_URL,
     DELIMETER,
-    HEADERS,
+    CHAT_HEADERS,
+    KBLOB_HEADERS
 )
 from sydney.enums import (
     ComposeFormat,
@@ -30,6 +33,7 @@ from sydney.exceptions import (
     CreateConversationException,
     ConversationLimitException,
     GetConversationsException,
+    ImageUploadException,
     NoConnectionException,
     NoResponseException,
     ThrottledRequestException,
@@ -93,7 +97,7 @@ class SydneyClient:
 
         if not self.session:
             self.session = ClientSession(
-                headers=HEADERS,
+                headers=CHAT_HEADERS,
                 cookies=cookies,
                 trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
                 connector=TCPConnector(verify_ssl=False)
@@ -103,7 +107,7 @@ class SydneyClient:
 
         return self.session
 
-    def _build_ask_arguments(self, prompt: str) -> dict:
+    def _build_ask_arguments(self, prompt: str, attachment_info: dict | None = None) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -112,10 +116,30 @@ class SydneyClient:
             "responsible_ai_policy_235",
             "enablemm",
             "dv3sugg",
+            "iyxapbing",
+            "iycapbing",
+            "galileo",
+            "saharagenconv5",
+            "h3imagntvwcp",
+            "seqnumtts",
+            "log2sph",
+            "savememfilter",
+            "uprofgen",
+            "uprofupd",
+            "uprofupdasy",
+            "eredirecturl",
         ]
         for style in style_options:
             options_sets.append(style.strip())
-
+        blob_data = {
+            "blobId": None,
+            "processedBlobId": None
+        }
+        if attachment_info:
+            blob_data = {
+                "blobId": BING_BLOB_URL + attachment_info['blobId'],
+                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
+            }
         return {
             "arguments": [
                 {
@@ -127,6 +151,8 @@ class SydneyClient:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
+                        "imageUrl": blob_data["processedBlobId"],
+                        "originalImageUrl": blob_data["blobId"]
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -180,9 +206,56 @@ class SydneyClient:
             "type": 4,
         }
 
+    async def _uploadAttachment(
+            self,
+            attachment: str
+    ):
+        """
+        Uploads a image to Bing's servers.
+
+        Parameters
+        ----------
+        attachment : str
+            The attachment to be uploaded.
+
+        Returns
+        -------
+        dict
+            The response from Bing. "blobId" and "processedBlobId" are parameters that can be passed 
+            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image on Bing's servers.
+        """
+        cookies = {"_U": self.bing_u_cookie}
+
+        session = ClientSession(
+            headers=KBLOB_HEADERS,
+            cookies=cookies,
+            trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+            connector=TCPConnector(verify_ssl=False)
+            if self.use_proxy
+            else None,  # Resolve HTTPS issue when proxy support is enabled.
+        )
+        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"%s\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"%s\",\"convotone\":\"%s\"}}}\r\n--\r\n" % (attachment, self.conversation_id, str(self.conversation_style))
+        async with session.post(BING_KBLOB_URL, data=data) as response:
+            if response.status != 200:
+                raise ImageUploadException(
+                    f"Failed to upload image, received status: {response.status}"
+                )
+            response_dict = await response.json()
+            if response_dict["blobId"] == None or response_dict["processedBlobId"] == None:
+                raise ImageUploadException(
+                    f"Failed to upload image, Bing rejected uploading it"
+                )
+            elif len(response_dict["blobId"]) == 0 or len(response_dict["processedBlobId"]) == 0:
+                raise ImageUploadException(
+                        f"Failed to upload image, received empty image info from Bing"
+                    )
+        await session.close()
+        return response_dict
+
     async def _ask(
         self,
         prompt: str,
+        attachment: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -205,15 +278,19 @@ class SydneyClient:
 
         # Create a websocket connection Bing Chat.
         self.wss_client = await websockets.connect(
-            bing_chathub_url, extra_headers=HEADERS, max_size=None
+            bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
+        
+        attachment_info = None
+        if attachment:
+            attachment_info = await self._uploadAttachment(attachment)
 
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
         else:
-            request = self._build_ask_arguments(prompt)
+            request = self._build_ask_arguments(prompt, attachment_info)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
@@ -323,6 +400,7 @@ class SydneyClient:
     async def ask(
         self,
         prompt: str,
+        attachment: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -334,6 +412,8 @@ class SydneyClient:
         ----------
         prompt : str
             The prompt that needs to be sent to Bing Chat.
+        attachment : str
+            The URL to an image to be included with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -350,6 +430,7 @@ class SydneyClient:
         """
         async for response, suggested_responses in self._ask(
             prompt,
+            attachment=attachment,
             citations=citations,
             suggestions=suggestions,
             raw=raw,
@@ -366,6 +447,7 @@ class SydneyClient:
     async def ask_stream(
         self,
         prompt: str,
+        attachment: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -380,6 +462,8 @@ class SydneyClient:
         ----------
         prompt : str
             The prompt that needs to be sent to Bing Chat.
+        attachment : str
+            The URL to an image to be included with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -398,6 +482,7 @@ class SydneyClient:
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
             prompt,
+            attachment=attachment,
             citations=citations,
             suggestions=suggestions,
             raw=raw,
@@ -459,6 +544,7 @@ class SydneyClient:
 
         async for response, suggested_responses in self._ask(
             prompt,
+            attachment=None,
             citations=False,
             suggestions=suggestions,
             raw=raw,
@@ -523,6 +609,7 @@ class SydneyClient:
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
             prompt,
+            attachment=None,
             citations=False,
             suggestions=suggestions,
             raw=raw,
