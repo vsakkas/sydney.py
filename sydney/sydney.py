@@ -106,7 +106,7 @@ class SydneyClient:
 
         return self.session
 
-    async def _build_ask_arguments(self, prompt: str, attachment: str | None = None) -> dict:
+    def _build_ask_arguments(self, prompt: str, attachment: dict | None = None) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -135,10 +135,9 @@ class SydneyClient:
             "processedBlobId": None
         }
         if attachment:
-            attachment_info = await self._uploadAttachment(attachment)
             blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info['blobId'],
-                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
+                "blobId": BING_BLOB_URL + attachment['blobId'],
+                "processedBlobId": BING_BLOB_URL + attachment['processedBlobId']
             }
         return {
             "arguments": [
@@ -281,11 +280,15 @@ class SydneyClient:
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
+        
+        attachment_info = None
+        if attachment:
+            attachment_info = await self._uploadAttachment(attachment)
 
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
         else:
-            request = await self._build_ask_arguments(prompt, attachment)
+            request = self._build_ask_arguments(prompt, attachment_info)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
