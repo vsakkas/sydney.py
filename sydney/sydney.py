@@ -240,7 +240,11 @@ class SydneyClient:
                     f"Failed to upload image, received status: {response.status}"
                 )
             response_dict = await response.json()
-            if len(response_dict["blobId"]) == 0 or len(response_dict["processedBlobId"]) == 0:
+            if response_dict["blobId"] == None or response_dict["processedBlobId"] == None:
+                raise ImageUploadException(
+                    f"Failed to upload image, Bing rejected uploading it"
+                )
+            elif len(response_dict["blobId"]) == 0 or len(response_dict["processedBlobId"]) == 0:
                 raise ImageUploadException(
                         f"Failed to upload image, received empty image info from Bing"
                     )
