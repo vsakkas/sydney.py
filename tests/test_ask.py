@@ -3,6 +3,8 @@ import pytest
 from sydney import SydneyClient
 from thefuzz import fuzz
 
+URL = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*"
+
 
 @pytest.mark.asyncio
 async def test_ask_precise() -> bool:
@@ -191,3 +193,9 @@ async def test_ask_raw_suggestions_citations() -> None:
         _ = await sydney.ask(
             "When was Bing Chat released?", suggestions=True, citations=True, raw=True
         )
+
+
+@pytest.mark.asyncio
+async def test_ask_attachment() -> None:
+    async with SydneyClient() as sydney:
+        _ = await sydney.ask("What does this image show?", attachment=URL)

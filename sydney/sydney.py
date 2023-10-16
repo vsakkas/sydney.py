@@ -17,7 +17,7 @@ from sydney.constants import (
     BING_BLOB_URL,
     DELIMETER,
     CHAT_HEADERS,
-    KBLOB_HEADERS
+    KBLOB_HEADERS,
 )
 from sydney.enums import (
     ComposeFormat,
@@ -107,7 +107,9 @@ class SydneyClient:
 
         return self.session
 
-    def _build_ask_arguments(self, prompt: str, attachment_info: dict | None = None) -> dict:
+    def _build_ask_arguments(
+        self, prompt: str, attachment_info: dict | None = None
+    ) -> dict:
         style_options = self.conversation_style.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
@@ -131,15 +133,14 @@ class SydneyClient:
         ]
         for style in style_options:
             options_sets.append(style.strip())
-        blob_data = {
-            "blobId": None,
-            "processedBlobId": None
-        }
+
+        blob_data = {"blobId": None, "processedBlobId": None}
         if attachment_info:
             blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info['blobId'],
-                "processedBlobId": BING_BLOB_URL + attachment_info['processedBlobId']
+                "blobId": BING_BLOB_URL + attachment_info["blobId"],
+                "processedBlobId": BING_BLOB_URL + attachment_info["processedBlobId"],
             }
+
         return {
             "arguments": [
                 {
@@ -152,7 +153,7 @@ class SydneyClient:
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
                         "imageUrl": blob_data["processedBlobId"],
-                        "originalImageUrl": blob_data["blobId"]
+                        "originalImageUrl": blob_data["blobId"],
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -206,23 +207,20 @@ class SydneyClient:
             "type": 4,
         }
 
-    async def _uploadAttachment(
-            self,
-            attachment: str
-    ):
+    async def _upload_attachment(self, attachment: str) -> dict:
         """
-        Uploads a image to Bing's servers.
+        Upload an image to Bing Chat.
 
         Parameters
         ----------
         attachment : str
-            The attachment to be uploaded.
+            The URL to the attachment image to be uploaded.
 
         Returns
         -------
         dict
-            The response from Bing. "blobId" and "processedBlobId" are parameters that can be passed 
-            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image on Bing's servers.
+            The response from Bing Chat. "blobId" and "processedBlobId" are parameters that can be passed
+            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Bing Chat.
         """
         cookies = {"_U": self.bing_u_cookie}
 
@@ -234,22 +232,36 @@ class SydneyClient:
             if self.use_proxy
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
-        data = "--\r\nContent-Disposition: form-data; name=\"knowledgeRequest\"\r\n\r\n{\"imageInfo\":{\"url\":\"%s\"},\"knowledgeRequest\":{\"invokedSkills\":[\"ImageById\"],\"subscriptionId\":\"Bing.Chat.Multimodal\",\"invokedSkillsRequestData\":{\"enableFaceBlur\":true},\"convoData\":{\"convoid\":\"%s\",\"convotone\":\"%s\"}}}\r\n--\r\n" % (attachment, self.conversation_id, str(self.conversation_style))
+
+        data = (
+            '--\r\nContent-Disposition: form-data; name="knowledgeRequest"\r\n\r\n{"imageInfo":{"url":"%s"},"knowledgeRequest":{"invokedSkills":["ImageById"],"subscriptionId":"Bing.Chat.Multimodal","invokedSkillsRequestData":{"enableFaceBlur":true},"convoData":{"convoid":"%s","convotone":"%s"}}}\r\n--\r\n'
+            % (attachment, self.conversation_id, str(self.conversation_style))
+        )
+
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
                 raise ImageUploadException(
                     f"Failed to upload image, received status: {response.status}"
                 )
+
             response_dict = await response.json()
-            if response_dict["blobId"] == None or response_dict["processedBlobId"] == None:
+            if (
+                response_dict["blobId"] == None
+                or response_dict["processedBlobId"] == None
+            ):
                 raise ImageUploadException(
-                    f"Failed to upload image, Bing rejected uploading it"
+                    f"Failed to upload image, Bing Chat rejected uploading it"
                 )
-            elif len(response_dict["blobId"]) == 0 or len(response_dict["processedBlobId"]) == 0:
+            elif (
+                len(response_dict["blobId"]) == 0
+                or len(response_dict["processedBlobId"]) == 0
+            ):
                 raise ImageUploadException(
-                        f"Failed to upload image, received empty image info from Bing"
-                    )
+                    f"Failed to upload image, received empty image info from Bing Chat"
+                )
+
         await session.close()
+
         return response_dict
 
     async def _ask(
@@ -282,10 +294,10 @@ class SydneyClient:
         )
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
-        
+
         attachment_info = None
         if attachment:
-            attachment_info = await self._uploadAttachment(attachment)
+            attachment_info = await self._upload_attachment(attachment)
 
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
