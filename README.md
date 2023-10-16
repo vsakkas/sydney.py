@@ -1,6 +1,6 @@
 # Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.15.2)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.16.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -16,6 +16,7 @@ Python Client for Bing Chat, also known as Sydney.
 - Compose content in various formats and tones.
 - Stream response tokens for real-time communication.
 - Retrieve citations and suggested user responses.
+- Provide images as input to enhance your prompts.
 - Use asyncio for efficient and non-blocking I/O operations.
 
 ## Requirements
@@ -158,13 +159,24 @@ async with SydneyClient() as sydney:
 
 Both versions of the `ask` method support the same parameters.
 
+
+### Attachment
+
+It is also possible to provide a URL to an image as an attachment, which will be used as input together with the prompt:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.ask("What does this picture show?", attachment=URL)
+    print(response)
+```
+
 ### Compose
 
 You can ask Bing Chat to compose different types of content, such emails, articles, ideas and more:
 
 ```python
 async with SydneyClient() as sydney:
-    response = sydney.compose("Why Python is a great language", format="ideas")
+    response = await sydney.compose("Why Python is a great language", format="ideas")
     print(response)
 ```
 
