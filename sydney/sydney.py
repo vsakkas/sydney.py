@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import urllib.parse
-from os import environ
+from os import getenv
 from typing import AsyncGenerator
 
 import websockets.client as websockets
@@ -64,9 +64,7 @@ class SydneyClient:
             the `HTTP_PROXY` and `HTTPS_PROXY` environment variables must be set to the address of the proxy to be used.
             If not provided, no proxy will be used. Default is False.
         """
-        self.bing_u_cookie = (
-            bing_u_cookie if bing_u_cookie else environ["BING_U_COOKIE"]
-        )
+        self.bing_u_cookie = bing_u_cookie if bing_u_cookie else getenv("BING_U_COOKIE")
         self.use_proxy = use_proxy
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
@@ -90,7 +88,7 @@ class SydneyClient:
 
     async def _get_session(self, force_close: bool = False) -> ClientSession:
         # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie}
+        cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
 
         if self.session and force_close:
             await self.session.close()
@@ -241,7 +239,7 @@ class SydneyClient:
             The response from Bing Chat. "blobId" and "processedBlobId" are parameters that can be passed
             to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Bing Chat.
         """
-        cookies = {"_U": self.bing_u_cookie}
+        cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
 
         session = ClientSession(
             headers=KBLOB_HEADERS,
