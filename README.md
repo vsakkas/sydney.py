@@ -16,13 +16,13 @@ Python Client for Bing Chat, also known as Sydney.
 - Compose content in various formats and tones.
 - Stream response tokens for real-time communication.
 - Retrieve citations and suggested user responses.
-- Provide images as input to enhance your prompts.
+- Enhance your prompts with images for an enriched experience.
 - Use asyncio for efficient and non-blocking I/O operations.
 
 ## Requirements
 
 - Python 3.9 or newer
-- Microsoft account with access to [Bing Chat](https://bing.com/chat)
+- Microsoft account with access to [Bing Chat](https://bing.com/chat) *(optional)*
 
 ## Installation
 
@@ -50,7 +50,7 @@ To use Sydney.py you first need to extract the `_U` cookie from the Bing Chat si
 To get the `_U` cookie, follow these steps on Microsoft Edge:
 - Open the Bing Chat side bar by clicking the top right Bing button.
 - Write a message on the chat dialog that appears.
-- Open the developer tools in your browser (usually by pressing `F12` or right-clicking and selecting `Inspect`).
+- Open the developer tools in your browser (usually by pressing `F12` or right-clicking on the chat dialog and selecting `Inspect`).
 - Select the `Application` tab and click on the `Cookies` option to view all cookies associated with `https://edgeservices.bing.com`.
 - Look for the `_U` cookie and click on it to expand its details.
 - Copy the value of the `_U` cookie (it should look like a long string of letters and numbers).
@@ -66,6 +66,9 @@ or, in your Python code:
 ```python
 os.environ["BING_U_COOKIE"] = "<your-cookie>"
 ```
+
+> **Note**
+> In some regions, using the `_U` cookie is not required, in which case the above instructions can be skipped.
 
 ### Example
 
@@ -166,7 +169,7 @@ It is also possible to provide a URL to an image as an attachment, which will be
 
 ```python
 async with SydneyClient() as sydney:
-    response = await sydney.ask("What does this picture show?", attachment=URL)
+    response = await sydney.ask("What does this picture show?", attachment="<image-url>")
     print(response)
 ```
 
@@ -195,7 +198,7 @@ The default available options for the `tone` parameter are:
 - `informational`
 - `funny`
 
-It is also possible to provide any other for the `tone` parameter.
+It is also possible to provide any other value for the `tone` parameter.
 
 The available options for the `format` parameter are:
 - `paragraph`
