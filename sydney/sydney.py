@@ -207,6 +207,25 @@ class SydneyClient:
             "type": 4,
         }
 
+    def _build_upload_arguments(self, attachment: str) -> str:
+        payload = {
+            "imageInfo": {"url": attachment},
+            "knowledgeRequest": {
+                "invokedSkills": ["ImageById"],
+                "subscriptionId": "Bing.Chat.Multimodal",
+                "invokedSkillsRequestData": {"enableFaceBlur": True},
+                "convoData": {
+                    "convoid": self.conversation_id,
+                    "convotone": str(self.conversation_style),
+                },
+            },
+        }
+
+        return (
+            f'--\r\nContent-Disposition: form-data; name="knowledgeRequest"\r\n\r\n'
+            f"{json.dumps(payload)}\r\n--\r\n"
+        )
+
     async def _upload_attachment(self, attachment: str) -> dict:
         """
         Upload an image to Bing Chat.
@@ -233,10 +252,7 @@ class SydneyClient:
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
 
-        data = (
-            '--\r\nContent-Disposition: form-data; name="knowledgeRequest"\r\n\r\n{"imageInfo":{"url":"%s"},"knowledgeRequest":{"invokedSkills":["ImageById"],"subscriptionId":"Bing.Chat.Multimodal","invokedSkillsRequestData":{"enableFaceBlur":true},"convoData":{"convoid":"%s","convotone":"%s"}}}\r\n--\r\n'
-            % (attachment, self.conversation_id, str(self.conversation_style))
-        )
+        data = self._build_upload_arguments(attachment)
 
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
