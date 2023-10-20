@@ -24,6 +24,7 @@ from sydney.enums import (
     ComposeLength,
     ComposeTone,
     ConversationStyle,
+    ConversationStyleOptionSets,
     CustomComposeTone,
     MessageType,
     ResultValue,
@@ -69,6 +70,9 @@ class SydneyClient:
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
+        self.conversation_style_option_sets: ConversationStyleOptionSets = getattr(
+            ConversationStyleOptionSets, style.upper()
+        )
         self.conversation_signature: str | None = None
         self.encrypted_conversation_signature: str | None = None
         self.conversation_id: str | None = None
@@ -106,9 +110,11 @@ class SydneyClient:
         return self.session
 
     def _build_ask_arguments(
-        self, prompt: str, attachment_info: dict | None = None
+        self,
+        prompt: str,
+        attachment_info: dict | None = None,
     ) -> dict:
-        style_options = self.conversation_style.value.split(",")
+        style_options = self.conversation_style_option_sets.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
             "deepleo",
@@ -116,47 +122,49 @@ class SydneyClient:
             "responsible_ai_policy_235",
             "enablemm",
             "dv3sugg",
+            "autosave",
             "iyxapbing",
             "iycapbing",
             "galileo",
             "saharagenconv5",
-            "h3imagntvwcp",
-            "seqnumtts",
-            "log2sph",
-            "savememfilter",
-            "uprofgen",
-            "uprofupd",
-            "uprofupdasy",
             "eredirecturl",
+            "logprobsc",
+            "bof108t525",
+            "cacheclean",
         ]
         for style in style_options:
             options_sets.append(style.strip())
 
-        blob_data = {"blobId": None, "processedBlobId": None}
+        image_url, original_image_url = None, None
         if attachment_info:
-            blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info["blobId"],
-                "processedBlobId": BING_BLOB_URL + attachment_info["processedBlobId"],
-            }
+            image_url = BING_BLOB_URL + attachment_info["blobId"]
+            original_image_url = BING_BLOB_URL + attachment_info["blobId"]
 
         return {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options_sets,
+                    "conversationHistoryOptionsSets": [
+                        "autosave",
+                        "savemem",
+                        "uprofupd",
+                        "uprofgen",
+                    ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
-                        "imageUrl": blob_data["processedBlobId"],
-                        "originalImageUrl": blob_data["blobId"],
+                        "imageUrl": image_url,
+                        "originalImageUrl": original_image_url,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
                         "id": self.client_id,
                     },
+                    "tone": str(self.conversation_style.value),
                     "conversationId": self.conversation_id,
                 }
             ],
@@ -214,7 +222,7 @@ class SydneyClient:
                 "invokedSkillsRequestData": {"enableFaceBlur": True},
                 "convoData": {
                     "convoid": self.conversation_id,
-                    "convotone": str(self.conversation_style),
+                    "convotone": str(self.conversation_style.value),
                 },
             },
         }
@@ -259,17 +267,12 @@ class SydneyClient:
                 )
 
             response_dict = await response.json()
-            if (
-                response_dict["blobId"] == None
-                or response_dict["processedBlobId"] == None
-            ):
+            if not response_dict["blobId"]:
                 raise ImageUploadException(
                     f"Failed to upload image, Bing Chat rejected uploading it"
                 )
-            elif (
-                len(response_dict["blobId"]) == 0
-                or len(response_dict["processedBlobId"]) == 0
-            ):
+
+            if len(response_dict["blobId"]) == 0:
                 raise ImageUploadException(
                     f"Failed to upload image, received empty image info from Bing Chat"
                 )
@@ -673,7 +676,9 @@ class SydneyClient:
         """
         await self.close_conversation()
         if style:
-            self.conversation_style = getattr(ConversationStyle, style.upper())
+            self.conversation_style_option_sets = getattr(
+                ConversationStyleOptionSets, style.upper()
+            )
         await self.start_conversation()
 
     async def close_conversation(self) -> None:
