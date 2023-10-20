@@ -24,6 +24,7 @@ from sydney.enums import (
     ComposeLength,
     ComposeTone,
     ConversationStyle,
+    ConversationStyleOptionSets,
     CustomComposeTone,
     MessageType,
     ResultValue,
@@ -68,6 +69,9 @@ class SydneyClient:
         self.use_proxy = use_proxy
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
+        )
+        self.conversation_style_option_sets: ConversationStyleOptionSets = getattr(
+            ConversationStyleOptionSets, style.upper()
         )
         self.conversation_signature: str | None = None
         self.encrypted_conversation_signature: str | None = None
@@ -214,7 +218,7 @@ class SydneyClient:
                 "invokedSkillsRequestData": {"enableFaceBlur": True},
                 "convoData": {
                     "convoid": self.conversation_id,
-                    "convotone": str(self.conversation_style),
+                    "convotone": str(self.conversation_style.value),
                 },
             },
         }
@@ -673,7 +677,9 @@ class SydneyClient:
         """
         await self.close_conversation()
         if style:
-            self.conversation_style = getattr(ConversationStyle, style.upper())
+            self.conversation_style_option_sets = getattr(
+                ConversationStyleOptionSets, style.upper()
+            )
         await self.start_conversation()
 
     async def close_conversation(self) -> None:

@@ -9,6 +9,19 @@ class ConversationStyle(Enum):
     - `precise` for concise and straightforward chat
     """
 
+    CREATIVE = "Creative"
+    BALANCED = "Balanced"
+    PRECISE = "Precise"
+
+
+class ConversationStyleOptionSets(Enum):
+    """
+    Bing Chat conversation styles. Supported options are:
+    - `creative` for original and imaginative chat
+    - `balanced` for informative and friendly chat
+    - `precise` for concise and straightforward chat
+    """
+
     CREATIVE = "h3imaginative,clgalileo,gencontentv3"
     BALANCED = "galileo"
     PRECISE = "h3precise,clgalileo"
