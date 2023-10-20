@@ -135,12 +135,10 @@ class SydneyClient:
         for style in style_options:
             options_sets.append(style.strip())
 
-        blob_data = {"blobId": None, "processedBlobId": None}
+        image_url, original_image_url = None, None
         if attachment_info:
-            blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info["blobId"],
-                "processedBlobId": BING_BLOB_URL + attachment_info["processedBlobId"],
-            }
+            image_url = BING_BLOB_URL + attachment_info["blobId"]
+            original_image_url = BING_BLOB_URL + attachment_info["blobId"]
 
         return {
             "arguments": [
@@ -159,8 +157,8 @@ class SydneyClient:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
-                        "imageUrl": blob_data["processedBlobId"],
-                        "originalImageUrl": blob_data["blobId"],
+                        "imageUrl": image_url,
+                        "originalImageUrl": original_image_url,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -269,17 +267,12 @@ class SydneyClient:
                 )
 
             response_dict = await response.json()
-            if (
-                response_dict["blobId"] == None
-                or response_dict["processedBlobId"] == None
-            ):
+            if not response_dict["blobId"]:
                 raise ImageUploadException(
                     f"Failed to upload image, Bing Chat rejected uploading it"
                 )
-            elif (
-                len(response_dict["blobId"]) == 0
-                or len(response_dict["processedBlobId"]) == 0
-            ):
+
+            if len(response_dict["blobId"]) == 0:
                 raise ImageUploadException(
                     f"Failed to upload image, received empty image info from Bing Chat"
                 )
