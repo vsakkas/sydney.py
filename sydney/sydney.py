@@ -110,9 +110,11 @@ class SydneyClient:
         return self.session
 
     def _build_ask_arguments(
-        self, prompt: str, attachment_info: dict | None = None
+        self,
+        prompt: str,
+        attachment_info: dict | None = None,
     ) -> dict:
-        style_options = self.conversation_style.value.split(",")
+        style_options = self.conversation_style_option_sets.value.split(",")
         options_sets = [
             "nlu_direct_response_filter",
             "deepleo",
@@ -120,18 +122,15 @@ class SydneyClient:
             "responsible_ai_policy_235",
             "enablemm",
             "dv3sugg",
+            "autosave",
             "iyxapbing",
             "iycapbing",
             "galileo",
             "saharagenconv5",
-            "h3imagntvwcp",
-            "seqnumtts",
-            "log2sph",
-            "savememfilter",
-            "uprofgen",
-            "uprofupd",
-            "uprofupdasy",
             "eredirecturl",
+            "logprobsc",
+            "bof108t525",
+            "cacheclean",
         ]
         for style in style_options:
             options_sets.append(style.strip())
@@ -148,6 +147,12 @@ class SydneyClient:
                 {
                     "source": "cib",
                     "optionsSets": options_sets,
+                    "conversationHistoryOptionsSets": [
+                        "autosave",
+                        "savemem",
+                        "uprofupd",
+                        "uprofgen",
+                    ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
@@ -161,6 +166,7 @@ class SydneyClient:
                     "participant": {
                         "id": self.client_id,
                     },
+                    "tone": str(self.conversation_style.value),
                     "conversationId": self.conversation_id,
                 }
             ],
