@@ -134,10 +134,16 @@ class SydneyClient:
 
         blob_data = {"blobId": None, "processedBlobId": None}
         if attachment_info:
-            blob_data = {
-                "blobId": BING_BLOB_URL + attachment_info["blobId"],
-                "processedBlobId": BING_BLOB_URL + attachment_info["processedBlobId"],
-            }
+            if len(attachment_info["processedBlobId"]) != 0:
+                blob_data = {
+                    "blobId": BING_BLOB_URL + attachment_info["blobId"],
+                    "processedBlobId": BING_BLOB_URL + attachment_info["processedBlobId"],
+                }
+            else:
+                blob_data = {
+                    "blobId": BING_BLOB_URL + attachment_info["blobId"],
+                    "processedBlobId": BING_BLOB_URL + attachment_info["blobId"],
+                }
 
         return {
             "arguments": [
@@ -268,7 +274,6 @@ class SydneyClient:
                 )
             elif (
                 len(response_dict["blobId"]) == 0
-                or len(response_dict["processedBlobId"]) == 0
             ):
                 raise ImageUploadException(
                     f"Failed to upload image, received empty image info from Bing Chat"
