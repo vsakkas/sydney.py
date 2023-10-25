@@ -113,6 +113,7 @@ class SydneyClient:
         self,
         prompt: str,
         attachment_info: dict | None = None,
+        context: str | None = None,
     ) -> dict:
         style_options = self.conversation_style_option_sets.value.split(",")
         options_sets = [
@@ -166,6 +167,14 @@ class SydneyClient:
                     },
                     "tone": str(self.conversation_style.value),
                     "conversationId": self.conversation_id,
+                    "previousMessages": [
+                        {
+                            "author": "user",
+                            "description": context if context else "<EMPTY>",
+                            "contextType": "WebPage",
+                            "messageType": "Context",
+                        }
+                    ],
                 }
             ],
             "invocationId": str(self.invocation_id),
@@ -285,6 +294,7 @@ class SydneyClient:
         self,
         prompt: str,
         attachment: str | None = None,
+        context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -319,7 +329,7 @@ class SydneyClient:
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
         else:
-            request = self._build_ask_arguments(prompt, attachment_info)
+            request = self._build_ask_arguments(prompt, attachment_info, context)
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
@@ -430,6 +440,7 @@ class SydneyClient:
         self,
         prompt: str,
         attachment: str | None = None,
+        context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -443,6 +454,8 @@ class SydneyClient:
             The prompt that needs to be sent to Bing Chat.
         attachment : str
             The URL to an image to be included with the prompt.
+        context: str
+            Website content to be used as additional context with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -460,6 +473,7 @@ class SydneyClient:
         async for response, suggested_responses in self._ask(
             prompt,
             attachment=attachment,
+            context=context,
             citations=citations,
             suggestions=suggestions,
             raw=raw,
@@ -477,6 +491,7 @@ class SydneyClient:
         self,
         prompt: str,
         attachment: str | None = None,
+        context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
         raw: bool = False,
@@ -493,6 +508,8 @@ class SydneyClient:
             The prompt that needs to be sent to Bing Chat.
         attachment : str
             The URL to an image to be included with the prompt.
+        context: str
+            Website content to be used as additional context with the prompt.
         citations : bool, optional
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
@@ -512,6 +529,7 @@ class SydneyClient:
         async for response, suggested_responses in self._ask(
             prompt,
             attachment=attachment,
+            context=context,
             citations=citations,
             suggestions=suggestions,
             raw=raw,
@@ -574,6 +592,7 @@ class SydneyClient:
         async for response, suggested_responses in self._ask(
             prompt,
             attachment=None,
+            context=None,
             citations=False,
             suggestions=suggestions,
             raw=raw,
@@ -639,6 +658,7 @@ class SydneyClient:
         async for response, suggested_responses in self._ask(
             prompt,
             attachment=None,
+            context=None,
             citations=False,
             suggestions=suggestions,
             raw=raw,

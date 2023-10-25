@@ -1,6 +1,6 @@
 # Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.16.1)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.17.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -170,6 +170,17 @@ It is also possible to provide a URL to an image as an attachment, which will be
 ```python
 async with SydneyClient() as sydney:
     response = await sydney.ask("What does this picture show?", attachment="<image-url>")
+    print(response)
+```
+
+
+### Web Context
+
+You can also provide the contents of a web page as additional context to be used along with the prompt:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.ask("Describe the webpage", context="<web-page-source>")
     print(response)
 ```
 
