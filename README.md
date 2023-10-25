@@ -173,6 +173,17 @@ async with SydneyClient() as sydney:
     print(response)
 ```
 
+
+### Web Context
+
+You can also provide the contents of a web page as additional context to be used along with the prompt:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.ask("Describe the webpage", context="<web-page-source>")
+    print(response)
+```
+
 ### Compose
 
 You can ask Bing Chat to compose different types of content, such emails, articles, ideas and more:
