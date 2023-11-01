@@ -167,14 +167,16 @@ class SydneyClient:
                     },
                     "tone": str(self.conversation_style.value),
                     "conversationId": self.conversation_id,
-                    "previousMessages": [
+                    "previousMessages": [  # Conditionally include this field
                         {
                             "author": "user",
-                            "description": context if context else "<EMPTY>",
+                            "description": context,
                             "contextType": "WebPage",
                             "messageType": "Context",
                         }
-                    ],
+                    ]
+                    if context
+                    else None,
                 }
             ],
             "invocationId": str(self.invocation_id),
