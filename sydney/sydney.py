@@ -137,7 +137,7 @@ class SydneyClient:
             image_url = BING_BLOB_URL + attachment_info["blobId"]
             original_image_url = BING_BLOB_URL + attachment_info["blobId"]
 
-        arguments = {
+        arguments: dict = {
             "arguments": [
                 {
                     "source": "cib",
