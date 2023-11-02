@@ -350,14 +350,16 @@ class SydneyClient:
                     if not messages:
                         continue
 
+                    # Skip "Searching the web for..." message.
+                    adaptiveCards = messages[0].get("adaptiveCards")
+                    if adaptiveCards:
+                        inlines = adaptiveCards[0]["body"][0].get("inlines")
+                        if inlines:
+                            continue
+
                     if raw:
                         yield response, None
                     elif citations:
-                        inlines = messages[0]["adaptiveCards"][0]["body"][0].get(
-                            "inlines"
-                        )
-                        if inlines:  # Skip "Searching the web for..." message.
-                            continue
                         yield messages[0]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
                         yield messages[0]["text"], None
