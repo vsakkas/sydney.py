@@ -83,26 +83,22 @@ class CustomComposeTone:
 
 class MessageType(Enum):
     """
-    Allowed message types. Supported options are:
-    - `Chat`
-    - `InternalSearchQuery`
-    - `InternalSearchResult`
-    - `Disengaged`
-    - `InternalLoaderMessage`
-    - `RenderCardRequest`
-    - `AdsQuery`
-    - `SemanticSerp`
-    - `GenerateContentQuery`
-    - `SearchQuery`
+    Allowed message types.
     """
 
     CHAT = "Chat"
-    INTERNAL_SEARCH_QUERY = "InternalSearchQuery"
-    INTERNAL_SEARCH_RESULT = "InternalSearchResult"
+    ACTION_REQUEST = "ActionRequest"
+    ADS_QUERY = "AdsQuery"
+    CONFIRMATION_CARD = "ConfirmationCard"
+    CONTEXT = "Context"
     DISENGAGED = "Disengaged"
     INTERNAL_LOADER_MESSAGE = "InternalLoaderMessage"
+    INTERNAL_SEARCH_QUERY = "InternalSearchQuery"
+    INTERNAL_SEARCH_RESULT = "InternalSearchResult"
+    INVOKE_ACTION = "InvokeAction"
+    PROGRESS = "Progress"
     RENDER_CARD_REQUEST = "RenderCardRequest"
-    ADS_QUERY = "AdsQuery"
+    RENDER_CONTENT_REQUEST = "RenderContentRequest"
     SEMANTIC_SERP = "SemanticSerp"
     GENERATE_CONTENT_QUERY = "GenerateContentQuery"
     SEARCH_QUERY = "SearchQuery"

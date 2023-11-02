@@ -126,12 +126,8 @@ class SydneyClient:
             "autosave",
             "iyxapbing",
             "iycapbing",
-            "galileo",
             "saharagenconv5",
             "eredirecturl",
-            "logprobsc",
-            "bof108t525",
-            "cacheclean",
         ]
         for style in style_options:
             options_sets.append(style.strip())
@@ -141,11 +137,16 @@ class SydneyClient:
             image_url = BING_BLOB_URL + attachment_info["blobId"]
             original_image_url = BING_BLOB_URL + attachment_info["blobId"]
 
-        return {
+        arguments = {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options_sets,
+                    "allowedMessageTypes": [message.value for message in MessageType],
+                    "sliceIds": [],
+                    "verbosity": "verbose",
+                    "scenario": "SERP",
+                    "plugins": [],
                     "conversationHistoryOptionsSets": [
                         "autosave",
                         "savemem",
@@ -166,23 +167,27 @@ class SydneyClient:
                         "id": self.client_id,
                     },
                     "tone": str(self.conversation_style.value),
+                    "spokenTextMode": "None",
                     "conversationId": self.conversation_id,
-                    "previousMessages": [  # Conditionally include this field
-                        {
-                            "author": "user",
-                            "description": context,
-                            "contextType": "WebPage",
-                            "messageType": "Context",
-                        }
-                    ]
-                    if context
-                    else None,
                 }
             ],
             "invocationId": str(self.invocation_id),
             "target": "chat",
             "type": 4,
         }
+
+        # Include previous message field if context is provided.
+        if context:
+            arguments["arguments"][0]["previousMessages"] = [
+                {
+                    "author": "user",
+                    "description": context,
+                    "contextType": "WebPage",
+                    "messageType": "Context",
+                }
+            ]
+
+        return arguments
 
     def _build_compose_arguments(
         self,
@@ -205,6 +210,10 @@ class SydneyClient:
                         "soedgeca",
                         "max_turns_5",
                     ],
+                    "allowedMessageTypes": [message.value for message in MessageType],
+                    "sliceIds": [],
+                    "verbosity": "verbose",
+                    "spokenTextMode": "None",
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
