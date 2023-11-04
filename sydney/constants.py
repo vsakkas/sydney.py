@@ -15,6 +15,7 @@ CHAT_HEADERS = {
     "Sec-Fetch-Site": "same-site",
     "User-Agent": USER_AGENT,
 }
+
 KBLOB_HEADERS = {
     "Accept-Language": "en-US,en;q=0.5",
     "Content-Type": "multipart/form-data",
@@ -22,8 +23,10 @@ KBLOB_HEADERS = {
     "User-Agent": USER_AGENT,
 }
 
+BUNDLE_VERSION = "1.1326.5"
+
 BING_CREATE_CONVERSATION_URL = (
-    "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
+    f"https://www.bing.com/turing/conversation/create?bundleVersion={BUNDLE_VERSION}"
 )
 BING_GET_CONVERSATIONS_URL = "https://www.bing.com/turing/conversation/chats"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
