@@ -3,7 +3,7 @@ import pytest
 from sydney import SydneyClient
 from thefuzz import fuzz
 
-URL = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*"
+URL = "https://github.com/vsakkas/sydney.py/blob/master/images/dog.jpg?raw=true"
 
 
 @pytest.mark.asyncio
@@ -131,7 +131,7 @@ async def test_ask_stream_creative() -> bool:
 @pytest.mark.asyncio
 async def test_ask_suggestions() -> None:
     async with SydneyClient() as sydney:
-        _ = await sydney.ask("When was Bing Chat released?", suggestions=True)
+        _, _ = await sydney.ask("When was Bing Chat released?", suggestions=True)
 
 
 @pytest.mark.asyncio
@@ -143,7 +143,7 @@ async def test_ask_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_suggestions_citations() -> None:
     async with SydneyClient() as sydney:
-        _ = await sydney.ask(
+        _, _ = await sydney.ask(
             "When was Bing Chat released?", suggestions=True, citations=True
         )
 
@@ -151,7 +151,7 @@ async def test_ask_suggestions_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_stream_suggestions() -> None:
     async with SydneyClient() as sydney:
-        async for _ in sydney.ask_stream(
+        async for _, _ in sydney.ask_stream(
             "When was Bing Chat released?", suggestions=True
         ):
             pass
@@ -169,7 +169,7 @@ async def test_ask_stream_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_stream_suggestions_citations() -> None:
     async with SydneyClient() as sydney:
-        async for _ in sydney.ask_stream(
+        async for _, _ in sydney.ask_stream(
             "When was Bing Chat released?", suggestions=True, citations=True
         ):
             pass
@@ -178,7 +178,9 @@ async def test_ask_stream_suggestions_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_raw_suggestions() -> None:
     async with SydneyClient() as sydney:
-        _ = await sydney.ask("When was Bing Chat released?", suggestions=True, raw=True)
+        _, _ = await sydney.ask(
+            "When was Bing Chat released?", suggestions=True, raw=True
+        )
 
 
 @pytest.mark.asyncio
@@ -190,7 +192,7 @@ async def test_ask_raw_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_raw_suggestions_citations() -> None:
     async with SydneyClient() as sydney:
-        _ = await sydney.ask(
+        _, _ = await sydney.ask(
             "When was Bing Chat released?", suggestions=True, citations=True, raw=True
         )
 
@@ -198,4 +200,38 @@ async def test_ask_raw_suggestions_citations() -> None:
 @pytest.mark.asyncio
 async def test_ask_attachment() -> None:
     async with SydneyClient() as sydney:
-        _ = await sydney.ask("What does this image show?", attachment=URL)
+        response = await sydney.ask("What does this image show?", attachment=URL)
+
+        assert isinstance(response, str)
+        assert "golden retriever puppy" in response.lower()
+
+
+@pytest.mark.asyncio
+async def test_ask_multiple_prompts() -> None:
+    async with SydneyClient() as sydney:
+        _ = await sydney.ask("Tell me a joke.")
+
+        _ = await sydney.ask("Tell me another one.")
+
+
+@pytest.mark.asyncio
+async def test_ask_logic_precise() -> bool:
+    expected_responses = [
+        "You have **4 apples** today. The apples you ate yesterday do not affect the number of apples you have today. So, you still have **4 apples**. Enjoy your apples! 🍎",
+        "You have **4 apples** today. The apples you ate yesterday don't affect the number of apples you have today. So, you still have **4 apples**. Enjoy your apples! 🍎",
+        "You mentioned that you have 4 apples today. The apples you ate yesterday do not affect the number of apples you have today. So, you still have **4 apples** today. Enjoy your apples! 🍎",
+        "You still have **4 apples** today. The apples you ate yesterday don't affect the number of apples you have today. Enjoy your apples! 🍎",
+    ]
+
+    async with SydneyClient(style="precise") as sydney:
+        response = await sydney.ask(
+            "I have 4 apples today. I ate 3 apples yesterday. How many apples do I have today?"
+        )
+
+        score = 0
+        for expected_response in expected_responses:
+            score = fuzz.token_sort_ratio(response, expected_response)
+            if score >= 80:
+                return True
+
+        assert False, f"Unexpected response: {response}, match score: {score}"
