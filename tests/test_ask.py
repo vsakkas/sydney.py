@@ -1,7 +1,7 @@
 import pytest
+from thefuzz import fuzz
 
 from sydney import SydneyClient
-from thefuzz import fuzz
 
 URL = "https://github.com/vsakkas/sydney.py/blob/master/images/dog.jpg?raw=true"
 
