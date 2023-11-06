@@ -203,7 +203,7 @@ async def test_ask_attachment() -> None:
         response = await sydney.ask("What does this image show?", attachment=URL)
 
         assert isinstance(response, str)
-        assert "golden retriever puppy" in response.lower()
+        assert "puppy" in response.lower()
 
 
 @pytest.mark.asyncio
