@@ -50,6 +50,7 @@ async def test_ask_creative() -> bool:
         "Hello, this is Bing. Nice to meet you! 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
         "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and queries. I can also generate creative content such as poems, stories, code, essays, songs, celebrity parodies, and more. What would you like to talk about? 🤗",
+        "Hi, this is Bing. I'm glad you're here. 😊 I can help you with various tasks, such as searching the web, creating graphic art, generating creative content, and more. Just ask me anything and I'll do my best to assist you. 🙌 What would you like to do today,?"
     ]
 
     async with SydneyClient(style="creative") as sydney:
