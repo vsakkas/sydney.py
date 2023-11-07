@@ -94,8 +94,9 @@ class SydneyClient:
         # Use _U cookie to create a conversation.
         cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
 
-        if self.session and force_close:
+        if self.session and not self.session.closed and force_close:
             await self.session.close()
+            self.session = None
 
         if not self.session:
             self.session = ClientSession(
@@ -724,6 +725,7 @@ class SydneyClient:
 
         if self.session and not self.session.closed:
             await self.session.close()
+            self.session = None
 
         # Clear conversation information.
         self.conversation_signature = None

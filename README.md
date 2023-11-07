@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="24px" /> Sydney.py
+# <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
 [![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.17.3)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
