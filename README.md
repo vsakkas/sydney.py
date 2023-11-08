@@ -300,6 +300,7 @@ When something goes wrong, Sydney.py might throw one of the following exceptions
 | Exception                     | Meaning                                  | Solution                |
 |-------------------------------|------------------------------------------|-------------------------|
 | `NoConnectionException`       | No connection to Bing Chat was found     | Retry                   |
+| `ConnectionTimeoutException`  | Attempt to connect to Bing Chat timed out| Retry
 | `NoResponseException`         | No response was returned from Bing Chat  | Retry or use new cookie |
 | `ThrottledRequestException`   | Request is throttled                     | Wait and retry          |
 | `CaptchaChallengeException`   | Captcha challenge must be solved         | Use new cookie          |
