@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import urllib.parse
+from asyncio import TimeoutError
 from os import getenv
 from typing import AsyncGenerator
 
@@ -10,13 +11,13 @@ from aiohttp import ClientSession, TCPConnector
 from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
+    BING_BLOB_URL,
     BING_CHATHUB_URL,
     BING_CREATE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
     BING_KBLOB_URL,
-    BING_BLOB_URL,
-    DELIMETER,
     CHAT_HEADERS,
+    DELIMETER,
     KBLOB_HEADERS,
 )
 from sydney.enums import (
@@ -31,8 +32,9 @@ from sydney.enums import (
 )
 from sydney.exceptions import (
     CaptchaChallengeException,
-    CreateConversationException,
+    ConnectionTimeoutException,
     ConversationLimitException,
+    CreateConversationException,
     GetConversationsException,
     ImageUploadException,
     NoConnectionException,
@@ -327,10 +329,15 @@ class SydneyClient:
         if self.encrypted_conversation_signature:
             bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
 
-        # Create a websocket connection Bing Chat.
-        self.wss_client = await websockets.connect(
-            bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
-        )
+        # Create a websocket connection with Bing Chat for sending and receiving messages.
+        try:
+            self.wss_client = await websockets.connect(
+                bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
+            )
+        except TimeoutError:
+            raise ConnectionTimeoutException(
+                "Failed to connect to Bing Chat, connection timed out"
+            ) from None
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
 

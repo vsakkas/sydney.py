@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.17.3)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.17.4)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -297,15 +297,16 @@ async with SydneyClient() as sydney:
 
 When something goes wrong, Sydney.py might throw one of the following exceptions:
 
-| Exception                     | Meaning                                  | Solution                |
-|-------------------------------|------------------------------------------|-------------------------|
-| `NoConnectionException`       | No connection to Bing Chat was found     | Retry                   |
-| `NoResponseException`         | No response was returned from Bing Chat  | Retry or use new cookie |
-| `ThrottledRequestException`   | Request is throttled                     | Wait and retry          |
-| `CaptchaChallengeException`   | Captcha challenge must be solved         | Use new cookie          |
-| `ConversationLimitException`  | Reached conversation limit of N messages | Start new conversation  |
-| `CreateConversationException` | Failed to create conversation            | Retry or use new cookie |
-| `GetConversationsException`   | Failed to get conversations              | Retry                   |
+| Exception                     | Meaning                                   | Solution                |
+|-------------------------------|-------------------------------------------|-------------------------|
+| `NoConnectionException`       | No connection to Bing Chat was found      | Retry                   |
+| `ConnectionTimeoutException`  | Attempt to connect to Bing Chat timed out | Retry                   |
+| `NoResponseException`         | No response was returned from Bing Chat   | Retry or use new cookie |
+| `ThrottledRequestException`   | Request is throttled                      | Wait and retry          |
+| `CaptchaChallengeException`   | Captcha challenge must be solved          | Use new cookie          |
+| `ConversationLimitException`  | Reached conversation limit of N messages  | Start new conversation  |
+| `CreateConversationException` | Failed to create conversation             | Retry or use new cookie |
+| `GetConversationsException`   | Failed to get conversations               | Retry                   |
 
 *For more detailed documentation and options, please refer to the code docstrings.*
 
