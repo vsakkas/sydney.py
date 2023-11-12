@@ -27,6 +27,54 @@ class ConversationStyleOptionSets(Enum):
     PRECISE = "h3precise,clgalileo"
 
 
+class ConversationHistoryOptionsSets(Enum):
+    AUTOSAVE = "autosave"
+    SAVEMEM = "savemem"
+    UPROFUPD = "uprofupd"
+    UPROFGEN = "uprofgen"
+
+
+class DefaultOptions(Enum):
+    """
+    Options that are used in all API requests to Bing Chat.
+    """
+
+    NLU_DIRECT_RESPONSE_FILTER = "nlu_direct_response_filter"
+    DEEPLEO = "deepleo"
+    DISABLE_EMOJI_SPOKEN_TEXT = "disable_emoji_spoken_text"
+    RESPONSIBLE_AI_POLICY_235 = "responsible_ai_policy_235"
+    ENABLEMM = "enablemm"
+    DV3SUGG = "dv3sugg"
+    IYXAPBING = "iyxapbing"
+    IYCAPBING = "iycapbing"
+    SAHARAGENCONV5 = "saharagenconv5"
+    EREDIRECTURL = "eredirecturl"
+
+
+class DefaultComposeOptions(Enum):
+    """
+    Options that are used in all compose API requests to Bing Chat.
+    """
+
+    NLU_DIRECT_RESPONSE_FILTER = "nlu_direct_response_filter"
+    DEEPLEO = "deepleo"
+    ENABLE_DEBUG_COMMANDS = "enable_debug_commands"
+    DISABLE_EMOJI_SPOKEN_TEXT = "disable_emoji_spoken_text"
+    RESPONSIBLE_AI_POLICY_235 = "responsible_ai_policy_235"
+    ENABLEMM = "enablemm"
+    SOEDGECA = "soedgeca"
+    MAX_TURNS_5 = "max_turns_5"
+
+
+class CookieOptions(Enum):
+    """
+    Options that are used only when the user is logged in
+    and using cookies to use in requests to Bing Chat.
+    """
+
+    AUTOSAVE = "autosave"
+
+
 class ComposeTone(Enum):
     """
     Bing Chat compose tones. Supported options are:

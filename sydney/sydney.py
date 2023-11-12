@@ -24,9 +24,13 @@ from sydney.enums import (
     ComposeFormat,
     ComposeLength,
     ComposeTone,
+    ConversationHistoryOptionsSets,
     ConversationStyle,
     ConversationStyleOptionSets,
+    CookieOptions,
     CustomComposeTone,
+    DefaultComposeOptions,
+    DefaultOptions,
     MessageType,
     ResultValue,
 )
@@ -118,22 +122,17 @@ class SydneyClient:
         attachment_info: dict | None = None,
         context: str | None = None,
     ) -> dict:
-        style_options = self.conversation_style_option_sets.value.split(",")
-        options_sets = [
-            "nlu_direct_response_filter",
-            "deepleo",
-            "disable_emoji_spoken_text",
-            "responsible_ai_policy_235",
-            "enablemm",
-            "dv3sugg",
-            "autosave",
-            "iyxapbing",
-            "iycapbing",
-            "saharagenconv5",
-            "eredirecturl",
-        ]
-        for style in style_options:
-            options_sets.append(style.strip())
+        options_sets = [option.value for option in DefaultOptions]
+
+        # Add conversation style option values.
+        options_sets.extend(
+            style.strip()
+            for style in self.conversation_style_option_sets.value.split(",")
+        )
+
+        # Build option sets based on whether cookies are used or not.
+        if self.bing_u_cookie:
+            options_sets.extend(option.value for option in CookieOptions)
 
         image_url, original_image_url = None, None
         if attachment_info:
@@ -151,10 +150,7 @@ class SydneyClient:
                     "scenario": "SERP",
                     "plugins": [],
                     "conversationHistoryOptionsSets": [
-                        "autosave",
-                        "savemem",
-                        "uprofupd",
-                        "uprofgen",
+                        option.value for option in ConversationHistoryOptionsSets
                     ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
@@ -203,16 +199,7 @@ class SydneyClient:
             "arguments": [
                 {
                     "source": "edge_coauthor_prod",
-                    "optionsSets": [
-                        "nlu_direct_response_filter",
-                        "deepleo",
-                        "enable_debug_commands",
-                        "disable_emoji_spoken_text",
-                        "responsible_ai_policy_235",
-                        "enablemm",
-                        "soedgeca",
-                        "max_turns_5",
-                    ],
+                    "optionsSets": [option.value for option in DefaultComposeOptions],
                     "allowedMessageTypes": [message.value for message in MessageType],
                     "sliceIds": [],
                     "verbosity": "verbose",
