@@ -27,6 +27,13 @@ class ConversationStyleOptionSets(Enum):
     PRECISE = "h3precise,clgalileo"
 
 
+class ConversationHistoryOptionsSets(Enum):
+    AUTOSAVE = "autosave"
+    SAVEMEM = "savemem"
+    UPROFUPD = "uprofupd"
+    UPROFGEN = "uprofgen"
+
+
 class DefaultOptions(Enum):
     """
     Options that are used in all API requests to Bing Chat.
@@ -66,20 +73,6 @@ class CookieOptions(Enum):
     """
 
     AUTOSAVE = "autosave"
-
-
-class CookielessOptions(Enum):
-    """
-    Options that are used only when the user is not
-    logged in to use in requests to Bing Chat.
-    """
-
-    SPKTXTIBMOFF = "spktxtibmoff"
-    UQUOPT = "uquopt"
-    GCCCOMP = "gcccomp"
-    UPROFGEN = "uprofgen"
-    UPROFUPD = "uprofupd"
-    UPROFUPDASY = "uprofupdasy"
 
 
 class ComposeTone(Enum):

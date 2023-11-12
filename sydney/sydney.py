@@ -24,9 +24,9 @@ from sydney.enums import (
     ComposeFormat,
     ComposeLength,
     ComposeTone,
+    ConversationHistoryOptionsSets,
     ConversationStyle,
     ConversationStyleOptionSets,
-    CookielessOptions,
     CookieOptions,
     CustomComposeTone,
     DefaultComposeOptions,
@@ -133,8 +133,6 @@ class SydneyClient:
         # Build option sets based on whether cookies are used or not.
         if self.bing_u_cookie:
             options_sets.extend(option.value for option in CookieOptions)
-        else:
-            options_sets.extend(option.value for option in CookielessOptions)
 
         image_url, original_image_url = None, None
         if attachment_info:
@@ -152,10 +150,7 @@ class SydneyClient:
                     "scenario": "SERP",
                     "plugins": [],
                     "conversationHistoryOptionsSets": [
-                        "autosave",
-                        "savemem",
-                        "uprofupd",
-                        "uprofgen",
+                        option.value for option in ConversationHistoryOptionsSets
                     ],
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
