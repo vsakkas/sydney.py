@@ -38,7 +38,7 @@ or, if you use [poetry](https://python-poetry.org/):
 poetry add sydney-py
 ```
 
-> [!IMPORTANT]
+> [!TIP]
 > Make sure you're using the latest version of Sydney.py to ensure best compatibility with Copilot.
 
 ## Usage
