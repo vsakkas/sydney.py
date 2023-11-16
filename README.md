@@ -70,6 +70,9 @@ os.environ["BING_U_COOKIE"] = "<your-cookie>"
 > **Note**
 > In some regions, using the `_U` cookie is not required, in which case the above instructions can be skipped.
 
+> **Note**
+> For regions where a cookie is required, it is recommended to manually write messages to Copilot until a message box containing a `Verifying` message, which will then switch to `Success!` Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
+
 ### Example
 
 You can use Sydney.py to easily create a CLI client for Copilot:
