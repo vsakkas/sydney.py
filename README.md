@@ -38,7 +38,7 @@ or, if you use [poetry](https://python-poetry.org/):
 poetry add sydney-py
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > Make sure you're using the latest version of Sydney.py to ensure best compatibility with Copilot.
 
 ## Usage
@@ -67,10 +67,10 @@ or, in your Python code:
 os.environ["BING_U_COOKIE"] = "<your-cookie>"
 ```
 
-> [!NOTE]
+> [!TIP]
 > In some regions, using the `_U` cookie is not required, in which case the above instructions can be skipped.
 
-> [!NOTE]
+> [!IMPORTANT]
 > For regions where a cookie is required, it is recommended to manually write messages to Copilot until a box containing a `Verifying` message appears, which should then switch to a `Success!` message. Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
 
 ### Example
