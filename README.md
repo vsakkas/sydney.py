@@ -6,7 +6,7 @@
 
 Python Client for Copilot (formerly named Bing Chat), also known as Sydney.
 
-> [!NOTE] 
+> [!NOTE]
 > This is an **unofficial** client.
 
 ## Features
@@ -38,7 +38,7 @@ or, if you use [poetry](https://python-poetry.org/):
 poetry add sydney-py
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > Make sure you're using the latest version of Sydney.py to ensure best compatibility with Copilot.
 
 ## Usage
@@ -67,10 +67,10 @@ or, in your Python code:
 os.environ["BING_U_COOKIE"] = "<your-cookie>"
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > In some regions, using the `_U` cookie is not required, in which case the above instructions can be skipped.
 
-> [!NOTE] 
+> [!NOTE]
 > For regions where a cookie is required, it is recommended to manually write messages to Copilot until a box containing a `Verifying` message appears, which should then switch to a `Success!` message. Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
 
 ### Example
@@ -253,10 +253,10 @@ async with SydneyClient() as sydney:
             print(suggestion)
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > The suggested user responses are returned only if the suggestions parameter is true. Otherwise, all `ask` and `compose` methods return only the response.
 
-> [!NOTE] 
+> [!NOTE]
 > When using the `ask_stream` or `compose_stream` method with the suggestions parameter, only the lastly returned suggested user responses may contain a value. For all previous iterations, the suggested user responses will be `None`.
 
 ### Compose using Suggestions
