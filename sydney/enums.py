@@ -3,7 +3,7 @@ from enum import Enum
 
 class ConversationStyle(Enum):
     """
-    Bing Chat conversation styles. Supported options are:
+    Copilot conversation styles. Supported options are:
     - `creative` for original and imaginative chat
     - `balanced` for informative and friendly chat
     - `precise` for concise and straightforward chat
@@ -16,7 +16,7 @@ class ConversationStyle(Enum):
 
 class ConversationStyleOptionSets(Enum):
     """
-    Bing Chat conversation styles. Supported options are:
+    Copilot conversation styles. Supported options are:
     - `creative` for original and imaginative chat
     - `balanced` for informative and friendly chat
     - `precise` for concise and straightforward chat
@@ -36,7 +36,7 @@ class ConversationHistoryOptionsSets(Enum):
 
 class DefaultOptions(Enum):
     """
-    Options that are used in all API requests to Bing Chat.
+    Options that are used in all API requests to Copilot.
     """
 
     NLU_DIRECT_RESPONSE_FILTER = "nlu_direct_response_filter"
@@ -53,7 +53,7 @@ class DefaultOptions(Enum):
 
 class DefaultComposeOptions(Enum):
     """
-    Options that are used in all compose API requests to Bing Chat.
+    Options that are used in all compose API requests to Copilot.
     """
 
     NLU_DIRECT_RESPONSE_FILTER = "nlu_direct_response_filter"
@@ -69,7 +69,7 @@ class DefaultComposeOptions(Enum):
 class CookieOptions(Enum):
     """
     Options that are used only when the user is logged in
-    and using cookies to use in requests to Bing Chat.
+    and using cookies to use in requests to Copilot.
     """
 
     AUTOSAVE = "autosave"
@@ -77,7 +77,7 @@ class CookieOptions(Enum):
 
 class ComposeTone(Enum):
     """
-    Bing Chat compose tones. Supported options are:
+    Copilot compose tones. Supported options are:
     - `professional` for formal conversations in a professional setting
     - `casual` for informal conversations between friends or family members
     - `enthusiastic` for conversations where the writer wants to convey excitement or passion
@@ -94,7 +94,7 @@ class ComposeTone(Enum):
 
 class ComposeFormat(Enum):
     """
-    Bing Chat compose formats. Supported options are:
+    Copilot compose formats. Supported options are:
     - `paragraph` for longer messages that are composed of multiple sentences or paragraphs
     - `email` for messages that are structured like emails, with a clear subject line and formal greeting and closing
     - `blogpost` for messages that are structured like blog posts, with clear headings and subheadings and a more informal tone
@@ -109,7 +109,7 @@ class ComposeFormat(Enum):
 
 class ComposeLength(Enum):
     """
-    Bing Chat compose lengths. Supported options are:
+    Copilot compose lengths. Supported options are:
     - `short` for messages that are only a few words or sentences long
     - `medium` for messages that are a few paragraphs long
     - `long` for messages that are several paragraphs or pages long
@@ -122,7 +122,7 @@ class ComposeLength(Enum):
 
 class CustomComposeTone:
     """
-    Class to represent custom Bing Chat compose tones.
+    Class to represent custom Copilot compose tones.
     """
 
     def __init__(self, value) -> None:
@@ -154,7 +154,7 @@ class MessageType(Enum):
 
 class ResultValue(Enum):
     """
-    Bing Chat result values on raw responses. Supported options are:
+    Copilot result values on raw responses. Supported options are:
     - `Success`
     - `Throttled`
     - `CaptchaChallenge`

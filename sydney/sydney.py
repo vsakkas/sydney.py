@@ -56,18 +56,18 @@ class SydneyClient:
         use_proxy: bool = False,
     ) -> None:
         """
-        Client for Bing Chat.
+        Client for Copilot (formerly named Bing Chat), also known as Sydney. 
 
         Parameters
         ----------
         style : str
-            The conversation style that Bing Chat will adopt. Must be one of the options listed
+            The conversation style that Copilot will adopt. Must be one of the options listed
             in the `ConversationStyle` enum. Default is "balanced".
         bing_u_cookie: str | None
-            The _U cookie from Bing required to connect and use Bing Chat. If not provided,
+            The _U cookie from Bing required to connect and use Copilot. If not provided,
             the `BING_U_COOKIE` environment variable is loaded instead. Default is None.
         use_proxy: str | None
-            Flag to determine if an HTTP proxy will be used to start a conversation with Bing Chat. If set to True,
+            Flag to determine if an HTTP proxy will be used to start a conversation with Copilot. If set to True,
             the `HTTP_PROXY` and `HTTPS_PROXY` environment variables must be set to the address of the proxy to be used.
             If not provided, no proxy will be used. Default is False.
         """
@@ -244,7 +244,7 @@ class SydneyClient:
 
     async def _upload_attachment(self, attachment: str) -> dict:
         """
-        Upload an image to Bing Chat.
+        Upload an image to Copilot.
 
         Parameters
         ----------
@@ -254,8 +254,8 @@ class SydneyClient:
         Returns
         -------
         dict
-            The response from Bing Chat. "blobId" and "processedBlobId" are parameters that can be passed
-            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Bing Chat.
+            The response from Copilot. "blobId" and "processedBlobId" are parameters that can be passed
+            to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Copilot.
         """
         cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
 
@@ -279,12 +279,12 @@ class SydneyClient:
             response_dict = await response.json()
             if not response_dict["blobId"]:
                 raise ImageUploadException(
-                    f"Failed to upload image, Bing Chat rejected uploading it"
+                    f"Failed to upload image, Copilot rejected uploading it"
                 )
 
             if len(response_dict["blobId"]) == 0:
                 raise ImageUploadException(
-                    f"Failed to upload image, received empty image info from Bing Chat"
+                    f"Failed to upload image, received empty image info from Copilot"
                 )
 
         await session.close()
@@ -310,20 +310,20 @@ class SydneyClient:
             or self.client_id is None
             or self.invocation_id is None
         ):
-            raise NoConnectionException("No connection to Bing Chat was found")
+            raise NoConnectionException("No connection to Copilot was found")
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
             bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
 
-        # Create a websocket connection with Bing Chat for sending and receiving messages.
+        # Create a websocket connection with Copilot for sending and receiving messages.
         try:
             self.wss_client = await websockets.connect(
                 bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
             )
         except TimeoutError:
             raise ConnectionTimeoutException(
-                "Failed to connect to Bing Chat, connection timed out"
+                "Failed to connect to Copilot, connection timed out"
             ) from None
         await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
         await self.wss_client.recv()
@@ -418,7 +418,7 @@ class SydneyClient:
 
     async def start_conversation(self) -> None:
         """
-        Connect to Bing Chat and create a new conversation.
+        Connect to Copilot and create a new conversation.
         """
         session = await self._get_session(force_close=True)
 
@@ -454,12 +454,12 @@ class SydneyClient:
         raw: bool = False,
     ) -> str | dict | tuple[str | dict, list | None]:
         """
-        Send a prompt to Bing Chat using the current conversation and return the answer.
+        Send a prompt to Copilot using the current conversation and return the answer.
 
         Parameters
         ----------
         prompt : str
-            The prompt that needs to be sent to Bing Chat.
+            The prompt that needs to be sent to Copilot.
         attachment : str
             The URL to an image to be included with the prompt.
         context: str
@@ -474,7 +474,7 @@ class SydneyClient:
         Returns
         -------
         str | dict | tuple
-            The text response from Bing Chat. If citations is True, the function returns the cited text.
+            The text response from Copilot. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
             If suggestions is True, the function returns a list with the suggested responses.
         """
@@ -505,15 +505,15 @@ class SydneyClient:
         raw: bool = False,
     ) -> AsyncGenerator[str | dict | tuple[str | dict, list | None], None]:
         """
-        Send a prompt to Bing Chat using the current conversation and stream the answer.
+        Send a prompt to Copilot using the current conversation and stream the answer.
 
-        By default, Bing Chat returns all previous tokens along with new ones. When using this
+        By default, Copilot returns all previous tokens along with new ones. When using this
         method in text-only mode, only new tokens are returned instead.
 
         Parameters
         ----------
         prompt : str
-            The prompt that needs to be sent to Bing Chat.
+            The prompt that needs to be sent to Copilot.
         attachment : str
             The URL to an image to be included with the prompt.
         context: str
@@ -528,7 +528,7 @@ class SydneyClient:
         Returns
         -------
         str | dict | tuple
-            The text response from Bing Chat. If citations is True, the function returns the cited text.
+            The text response from Copilot. If citations is True, the function returns the cited text.
             If raw is True, the function returns the entire response object in raw JSON format.
             If suggestions is True, the function returns a list with the suggested responses. Only the final
             yielded result contains the suggested responses.
@@ -565,13 +565,13 @@ class SydneyClient:
         raw: bool = False,
     ) -> str | dict | tuple[str | dict, list | None]:
         """
-        Send a prompt to Bing Chat and compose text based on the given prompt, tone,
+        Send a prompt to Copilot and compose text based on the given prompt, tone,
         format, and length.
 
         Parameters
         ----------
         prompt : str
-            The prompt that needs to be sent to Bing Chat.
+            The prompt that needs to be sent to Copilot.
         tone : str, optional
             The tone of the response. Must be one of the options listed in the `ComposeTone`
             enum. Default is "professional".
@@ -589,7 +589,7 @@ class SydneyClient:
         Returns
         -------
         str or dict
-            The response from Bing Chat. If raw is True, the function returns the entire response
+            The response from Copilot. If raw is True, the function returns the entire response
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
@@ -627,16 +627,16 @@ class SydneyClient:
         raw: bool = False,
     ) -> AsyncGenerator[str | dict | tuple[str | dict, list | None], None]:
         """
-        Send a prompt to Bing Chat, compose and stream text based on the given prompt, tone,
+        Send a prompt to Copilot, compose and stream text based on the given prompt, tone,
         format, and length.
 
-        By default, Bing Chat returns all previous tokens along with new ones. When using this
+        By default, Copilot returns all previous tokens along with new ones. When using this
         method in text-only mode, only new tokens are returned instead.
 
         Parameters
         ----------
         prompt : str
-            The prompt that needs to be sent to Bing Chat.
+            The prompt that needs to be sent to Copilot.
         tone : str, optional
             The tone of the response. Must be one of the options listed in the `ComposeTone`
             enum. Default is "professional".
@@ -654,7 +654,7 @@ class SydneyClient:
         Returns
         -------
         str or dict
-            The response from Bing Chat. If raw is True, the function returns the entire response
+            The response from Copilot. If raw is True, the function returns the entire response
             object in raw JSON format.
         """
         # Get the enum values corresponding to the given tone, format, and length.
@@ -694,7 +694,7 @@ class SydneyClient:
         Parameters
         ----------
         style : str
-            The conversation style that Bing Chat will adopt. Supported options are:
+            The conversation style that Copilot will adopt. Supported options are:
             - `creative` for original and imaginative chat
             - `balanced` for informative and friendly chat
             - `precise` for concise and straightforward chat
@@ -711,7 +711,7 @@ class SydneyClient:
 
     async def close_conversation(self) -> None:
         """
-        Close all connections to Bing Chat. Clear conversation information.
+        Close all connections to Copilot. Clear conversation information.
         """
         if self.wss_client and not self.wss_client.closed:
             await self.wss_client.close()
