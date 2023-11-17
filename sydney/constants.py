@@ -27,8 +27,6 @@ CREATE_HEADERS = {
     "Sec-Fetch-Dest": "empty",
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Site": "same-origin",
-    "Sec-Ms-Gec": "0D3C55EA3A4602964E5474BD9C1D472632FD8E3280D266A5C761A0C6CD4C7595",
-    "Sec-Ms-Gec-Version": "1-119.0.2151.58",
     "User-Agent": USER_AGENT,
     "X-Edge-Shopping-Flag": "0",
 }
