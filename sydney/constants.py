@@ -1,23 +1,6 @@
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/117.0.2045.60"
 
-CHAT_HEADERS = {
-    "Accept": "application/json",
-    "Accept-Encoding": "gzip, deflate",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Content-Type": "application/json",
-    "Origin": "https://www.bing.com",
-    "Referer": "https://www.bing.com/",
-    "Sec-Ch-Ua": '"Microsoft Edge";v="117", "Not;A=Brand";v="8", "Chromium";v="118"',
-    "Sec-Ch-Ua-Mobile": "?0",
-    "Sec-Ch-Ua-Platform": "Windows",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
-    "User-Agent": USER_AGENT,
-}
-
 CREATE_HEADERS = {
-    "Authority": "www.bing.com",
     "Accept": "application/json",
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": "https://www.bing.com/copilot",
@@ -36,13 +19,9 @@ CHATHUB_HEADERS = {
     "Origin": "https://www.bing.com",
     "Accept-Language": "en-US,en;q=0.9",
     "User-Agent": USER_AGENT,
-    "Upgrade": "websocket",
     "Cache-Control": "no-cache",
     "Connection": "Upgrade",
-    "Sec-WebSocket-Version": "13",
-    "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits",
 }
-
 
 KBLOB_HEADERS = {
     "Accept-Language": "en-US,en;q=0.5",
