@@ -16,7 +16,8 @@ from sydney.constants import (
     BING_CREATE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
     BING_KBLOB_URL,
-    CHAT_HEADERS,
+    CHATHUB_HEADERS,
+    CREATE_HEADERS,
     DELIMETER,
     KBLOB_HEADERS,
 )
@@ -56,7 +57,7 @@ class SydneyClient:
         use_proxy: bool = False,
     ) -> None:
         """
-        Client for Copilot (formerly named Bing Chat), also known as Sydney. 
+        Client for Copilot (formerly named Bing Chat), also known as Sydney.
 
         Parameters
         ----------
@@ -106,7 +107,7 @@ class SydneyClient:
 
         if not self.session:
             self.session = ClientSession(
-                headers=CHAT_HEADERS,
+                headers=CREATE_HEADERS,
                 cookies=cookies,
                 trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
                 connector=TCPConnector(verify_ssl=False)
@@ -319,7 +320,7 @@ class SydneyClient:
         # Create a websocket connection with Copilot for sending and receiving messages.
         try:
             self.wss_client = await websockets.connect(
-                bing_chathub_url, extra_headers=CHAT_HEADERS, max_size=None
+                bing_chathub_url, extra_headers=CHATHUB_HEADERS, max_size=None
             )
         except TimeoutError:
             raise ConnectionTimeoutException(
