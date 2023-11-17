@@ -1,19 +1,26 @@
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/117.0.2045.60"
 
-CHAT_HEADERS = {
+CREATE_HEADERS = {
     "Accept": "application/json",
-    "Accept-Encoding": "gzip, deflate",
     "Accept-Language": "en-US,en;q=0.9",
-    "Content-Type": "application/json",
-    "Origin": "https://www.bing.com",
-    "Referer": "https://www.bing.com/",
-    "Sec-Ch-Ua": '"Microsoft Edge";v="117", "Not;A=Brand";v="8", "Chromium";v="118"',
+    "Referer": "https://www.bing.com/copilot",
+    "Sec-Ch-Ua": '"Microsoft Edge";v="117", "Chromium";v="118", "Not?A_Brand";v="8"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": "Windows",
     "Sec-Fetch-Dest": "empty",
     "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
+    "Sec-Fetch-Site": "same-origin",
     "User-Agent": USER_AGENT,
+    "X-Edge-Shopping-Flag": "0",
+}
+
+CHATHUB_HEADERS = {
+    "Pragma": "no-cache",
+    "Origin": "https://www.bing.com",
+    "Accept-Language": "en-US,en;q=0.9",
+    "User-Agent": USER_AGENT,
+    "Cache-Control": "no-cache",
+    "Connection": "Upgrade",
 }
 
 KBLOB_HEADERS = {
