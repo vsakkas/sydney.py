@@ -46,14 +46,14 @@ from sydney.exceptions import (
     NoResponseException,
     ThrottledRequestException,
 )
-from sydney.utils import as_json
+from sydney.utils import as_json, cookies_as_dict
 
 
 class SydneyClient:
     def __init__(
         self,
         style: str = "balanced",
-        bing_u_cookie: str | None = None,
+        bing_cookies: str | None = None,
         use_proxy: bool = False,
     ) -> None:
         """
@@ -64,15 +64,15 @@ class SydneyClient:
         style : str
             The conversation style that Copilot will adopt. Must be one of the options listed
             in the `ConversationStyle` enum. Default is "balanced".
-        bing_u_cookie: str | None
-            The _U cookie from Bing required to connect and use Copilot. If not provided,
-            the `BING_U_COOKIE` environment variable is loaded instead. Default is None.
+        bing_cookies: str | None
+            The cookies from Bing required to connect and use Copilot. If not provided,
+            the `BING_COOKIES` environment variable is loaded instead. Default is None.
         use_proxy: str | None
             Flag to determine if an HTTP proxy will be used to start a conversation with Copilot. If set to True,
             the `HTTP_PROXY` and `HTTPS_PROXY` environment variables must be set to the address of the proxy to be used.
             If not provided, no proxy will be used. Default is False.
         """
-        self.bing_u_cookie = bing_u_cookie if bing_u_cookie else getenv("BING_U_COOKIE")
+        self.bing_cookies = bing_cookies if bing_cookies else getenv("BING_COOKIES")
         self.use_proxy = use_proxy
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
@@ -99,7 +99,7 @@ class SydneyClient:
 
     async def _get_session(self, force_close: bool = False) -> ClientSession:
         # Use _U cookie to create a conversation.
-        cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
+        cookies = cookies_as_dict(self.bing_cookies) if self.bing_cookies else {}
 
         if self.session and not self.session.closed and force_close:
             await self.session.close()
@@ -132,7 +132,7 @@ class SydneyClient:
         )
 
         # Build option sets based on whether cookies are used or not.
-        if self.bing_u_cookie:
+        if self.bing_cookies:
             options_sets.extend(option.value for option in CookieOptions)
 
         image_url, original_image_url = None, None
@@ -258,7 +258,7 @@ class SydneyClient:
             The response from Copilot. "blobId" and "processedBlobId" are parameters that can be passed
             to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Copilot.
         """
-        cookies = {"_U": self.bing_u_cookie} if self.bing_u_cookie else {}
+        cookies = cookies_as_dict(self.bing_cookies) if self.bing_cookies else {}
 
         session = ClientSession(
             headers=KBLOB_HEADERS,
