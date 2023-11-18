@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
-import urllib.parse
 from asyncio import TimeoutError
 from os import getenv
 from typing import AsyncGenerator
+from urllib import parse
 
 import websockets.client as websockets
 from aiohttp import ClientSession, TCPConnector
@@ -315,7 +315,7 @@ class SydneyClient:
 
         bing_chathub_url = BING_CHATHUB_URL
         if self.encrypted_conversation_signature:
-            bing_chathub_url += f"?sec_access_token={urllib.parse.quote(self.encrypted_conversation_signature)}"
+            bing_chathub_url += f"?sec_access_token={parse.quote(self.encrypted_conversation_signature)}"
 
         # Create a websocket connection with Copilot for sending and receiving messages.
         try:
@@ -357,10 +357,8 @@ class SydneyClient:
 
                     # Skip "Searching the web for..." message.
                     adaptiveCards = messages[0].get("adaptiveCards")
-                    if adaptiveCards:
-                        inlines = adaptiveCards[0]["body"][0].get("inlines")
-                        if inlines:
-                            continue
+                    if adaptiveCards and adaptiveCards[0]["body"][0].get("inlines"):
+                        continue
 
                     if raw:
                         yield response, None
