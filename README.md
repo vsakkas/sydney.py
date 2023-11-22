@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.17.6)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.18.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -45,30 +45,30 @@ poetry add sydney-py
 
 ### Prerequisites
 
-To use Sydney.py you first need to extract the `_U` cookie from the Copilot web page. The `_U` cookie is used to authenticate your requests to the Copilot API.
+To use Sydney.py, you first need to extract all the cookies from the Copilot web page. These cookies are used to authenticate your requests to the Copilot API.
 
-To get the `_U` cookie, follow these steps on Microsoft Edge:
+To get the cookies, follow these steps on Microsoft Edge:
 - Go to the [Copilot web page](https://copilot.microsoft.com/).
-- Write a message on the chat dialog that appears.
 - Open the developer tools in your browser (usually by pressing `F12` or right-clicking on the chat dialog and selecting `Inspect`).
-- Select the `Application` tab and click on the `Cookies` option to view all cookies associated with `https://www.bing.com`.
-- Look for the `_U` cookie and click on it to expand its details.
-- Copy the value of the `_U` cookie (it should look like a long string of letters and numbers).
+- Select the `Network` tab to view all requests sent to Copilot.
+- Write a message on the chat dialog that appears on the web page.
+- Find a request named `create?bundleVersion=XYZ` and click on it.
+- Scroll down to the requests headers section and copy the entire value after the `Cookie:` field.
 
 Then, set it as an environment variable in your shell:
 
 ```bash
-export BING_U_COOKIE=<your-cookie>
+export BING_COOKIES=<your-cookies>
 ```
 
 or, in your Python code:
 
 ```python
-os.environ["BING_U_COOKIE"] = "<your-cookie>"
+os.environ["BING_COOKIES"] = "<your-cookies>"
 ```
 
 > [!TIP]
-> In some regions, using the `_U` cookie is not required, in which case the above instructions can be skipped.
+> In some regions, using cookies is not required, in which case the above instructions can be skipped.
 
 > [!IMPORTANT]
 > For regions where a cookie is required, it is recommended to manually write messages to Copilot until a box containing a `Verifying` message appears, which should then switch to a `Success!` message. Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.

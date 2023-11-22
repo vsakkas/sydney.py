@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.17.6"
-description = "Python Client for Bing Chat, also known as Sydney."
+version = "0.18.0"
+description = "Python Client for Copilot (formerly named Bing Chat), also known as Sydney."
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
 readme = "README.md"
