@@ -70,6 +70,9 @@ os.environ["BING_COOKIES"] = "<your-cookies>"
 > [!TIP]
 > In some regions, using cookies is not required, in which case the above instructions can be skipped.
 
+> [!TIP]
+> It is also possible to use the `Cookie-Editor` extension, export the cookies in `Header String` format and set them the same way.
+
 > [!IMPORTANT]
 > For regions where a cookie is required, it is recommended to manually write messages to Copilot until a box containing a `Verifying` message appears, which should then switch to a `Success!` message. Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
 
