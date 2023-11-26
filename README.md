@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.18.2)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.19.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -165,7 +165,6 @@ async with SydneyClient() as sydney:
 
 Both versions of the `ask` method support the same parameters.
 
-
 ### Attachment
 
 It is also possible to provide a URL to an image as an attachment, which will be used as input together with the prompt:
@@ -176,7 +175,6 @@ async with SydneyClient() as sydney:
     print(response)
 ```
 
-
 ### Web Context
 
 You can also provide the contents of a web page as additional context to be used along with the prompt:
@@ -186,6 +184,21 @@ async with SydneyClient() as sydney:
     response = await sydney.ask("Describe the webpage", context="<web-page-source>")
     print(response)
 ```
+
+### Web Search
+
+It is possible to determine if Copilot can search the web for information to use in the results:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.ask("When was Bing Chat released?", search=False)
+    print(response)
+```
+
+Searching the web is enabled by default.
+
+> [!NOTE]
+> Web search cannot be disabled when the response is streamed.
 
 ### Compose
 

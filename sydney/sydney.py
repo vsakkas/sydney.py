@@ -33,6 +33,7 @@ from sydney.enums import (
     DefaultComposeOptions,
     DefaultOptions,
     MessageType,
+    NoSearchOptions,
     ResultValue,
 )
 from sydney.exceptions import (
@@ -120,6 +121,7 @@ class SydneyClient:
     def _build_ask_arguments(
         self,
         prompt: str,
+        search: bool,
         attachment_info: dict | None = None,
         context: str | None = None,
     ) -> dict:
@@ -134,6 +136,10 @@ class SydneyClient:
         # Build option sets based on whether cookies are used or not.
         if self.bing_cookies:
             options_sets.extend(option.value for option in CookieOptions)
+
+        # Build option sets based on whether search is allowed or not.
+        if not search:
+            options_sets.extend(option.value for option in NoSearchOptions)
 
         image_url, original_image_url = None, None
         if attachment_info:
@@ -299,6 +305,7 @@ class SydneyClient:
         context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
+        search: bool = True,
         raw: bool = False,
         stream: bool = False,
         compose: bool = False,
@@ -336,7 +343,9 @@ class SydneyClient:
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
         else:
-            request = self._build_ask_arguments(prompt, attachment_info, context)
+            request = self._build_ask_arguments(
+                prompt, search, attachment_info, context
+            )
         self.invocation_id += 1
 
         await self.wss_client.send(as_json(request))
@@ -457,6 +466,7 @@ class SydneyClient:
         context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
+        search: bool = True,
         raw: bool = False,
     ) -> str | dict | tuple[str | dict, list | None]:
         """
@@ -474,6 +484,8 @@ class SydneyClient:
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
             Whether to return any suggested user responses. Default is False.
+        search: bool, optional
+            Whether to allow searching the web. Default is True.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -490,6 +502,7 @@ class SydneyClient:
             context=context,
             citations=citations,
             suggestions=suggestions,
+            search=search,
             raw=raw,
             stream=False,
             compose=False,
@@ -546,6 +559,7 @@ class SydneyClient:
             context=context,
             citations=citations,
             suggestions=suggestions,
+            search=True,
             raw=raw,
             stream=True,
             compose=False,
@@ -609,6 +623,7 @@ class SydneyClient:
             context=None,
             citations=False,
             suggestions=suggestions,
+            search=True,
             raw=raw,
             stream=False,
             compose=True,
@@ -675,6 +690,7 @@ class SydneyClient:
             context=None,
             citations=False,
             suggestions=suggestions,
+            search=True,
             raw=raw,
             stream=True,
             compose=True,

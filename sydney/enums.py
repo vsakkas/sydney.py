@@ -51,6 +51,14 @@ class DefaultOptions(Enum):
     EREDIRECTURL = "eredirecturl"
 
 
+class NoSearchOptions(Enum):
+    """
+    Options that are used to disable search access.
+    """
+
+    NOSEARCHALL = "nosearchall"
+
+
 class DefaultComposeOptions(Enum):
     """
     Options that are used in all compose API requests to Copilot.
