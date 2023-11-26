@@ -392,6 +392,12 @@ class SydneyClient:
                             raise CaptchaChallengeException("Solve CAPTCHA to continue")
                         return  # Return empty message.
 
+                    # Skip "Searching the web for..." message.
+                    adaptiveCards = messages[-1].get("adaptiveCards")
+                    if adaptiveCards and adaptiveCards[-1]["body"][0].get("inlines"):
+                        streaming = False  # Exit, type 2 is the last message.
+                        continue
+
                     if raw:
                         yield response, None
                     else:
