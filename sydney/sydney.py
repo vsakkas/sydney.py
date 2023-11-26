@@ -484,6 +484,8 @@ class SydneyClient:
             Whether to return any cited text. Default is False.
         suggestions : bool, optional
             Whether to return any suggested user responses. Default is False.
+        search: bool, optional
+            Whether to allow searching the web. Default is True.
         raw : bool, optional
             Whether to return the entire response object in raw JSON format. Default is False.
 
@@ -519,7 +521,6 @@ class SydneyClient:
         context: str | None = None,
         citations: bool = False,
         suggestions: bool = False,
-        search: bool = True,
         raw: bool = False,
     ) -> AsyncGenerator[str | dict | tuple[str | dict, list | None], None]:
         """
@@ -558,7 +559,7 @@ class SydneyClient:
             context=context,
             citations=citations,
             suggestions=suggestions,
-            search=search,
+            search=True,
             raw=raw,
             stream=True,
             compose=False,

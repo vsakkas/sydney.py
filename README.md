@@ -165,7 +165,6 @@ async with SydneyClient() as sydney:
 
 Both versions of the `ask` method support the same parameters.
 
-
 ### Attachment
 
 It is also possible to provide a URL to an image as an attachment, which will be used as input together with the prompt:
@@ -176,7 +175,6 @@ async with SydneyClient() as sydney:
     print(response)
 ```
 
-
 ### Web Context
 
 You can also provide the contents of a web page as additional context to be used along with the prompt:
@@ -186,6 +184,21 @@ async with SydneyClient() as sydney:
     response = await sydney.ask("Describe the webpage", context="<web-page-source>")
     print(response)
 ```
+
+### Web Search
+
+It is possible to determine if Copilot can search the web for information to use in the results:
+
+```python
+async with SydneyClient() as sydney:
+    response = await sydney.ask("When was Bing Chat released?", search=False)
+    print(response)
+```
+
+Searching the web is enabled by default.
+
+> [!NOTE]
+> Web search cannot be disabled when the response is streamed.
 
 ### Compose
 
