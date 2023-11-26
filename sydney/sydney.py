@@ -392,29 +392,30 @@ class SydneyClient:
                             raise CaptchaChallengeException("Solve CAPTCHA to continue")
                         return  # Return empty message.
 
-                    # Skip "Searching the web for..." message.
+                    # Fix index in some cases where the last message in an inline message.
+                    # Typically occurs when an attechment is provided.
+                    i = -1
                     adaptiveCards = messages[-1].get("adaptiveCards")
                     if adaptiveCards and adaptiveCards[-1]["body"][0].get("inlines"):
-                        streaming = False  # Exit, type 2 is the last message.
-                        continue
+                        i = -2  # TODO: This feel hacky
 
                     if raw:
                         yield response, None
                     else:
                         suggested_responses = None
                         # Include list of suggested user responses, if enabled.
-                        if suggestions and messages[-1].get("suggestedResponses"):
+                        if suggestions and messages[i].get("suggestedResponses"):
                             suggested_responses = [
                                 item["text"]
-                                for item in messages[-1]["suggestedResponses"]
+                                for item in messages[i]["suggestedResponses"]
                             ]
 
                         if citations:
-                            yield messages[-1]["adaptiveCards"][0]["body"][0][
+                            yield messages[i]["adaptiveCards"][0]["body"][0][
                                 "text"
                             ], suggested_responses
                         else:
-                            yield messages[-1]["text"], suggested_responses
+                            yield messages[i]["text"], suggested_responses
 
                     # Exit, type 2 is the last message.
                     streaming = False
