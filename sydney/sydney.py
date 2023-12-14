@@ -374,7 +374,8 @@ class SydneyClient:
                     elif citations:
                         yield messages[0]["adaptiveCards"][0]["body"][0]["text"], None
                     else:
-                        yield messages[0]["text"], None
+                        if ("text" in messages[0]) :
+                            yield messages[0]["text"], None
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
                     # Check if reached conversation limit.
