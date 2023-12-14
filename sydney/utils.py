@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 from sydney.constants import DELIMETER
 
@@ -18,3 +19,10 @@ def cookies_as_dict(cookies: str) -> dict:
         key_value.strip().split("=")[0]: "=".join(key_value.split("=")[1:])
         for key_value in cookies.split(";")
     }
+
+
+def check_if_url(string: str) -> bool:
+    parsed_string = urlparse(string)
+    if parsed_string.scheme and parsed_string.netloc:
+        return True
+    return False
