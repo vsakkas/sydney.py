@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.19.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.20.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -170,11 +170,11 @@ Both versions of the `ask` method support the same parameters.
 
 ### Attachment
 
-It is also possible to provide a URL to an image as an attachment, which will be used as input together with the prompt:
+It is also possible to provide a URL to an image or a local image file path as an attachment, which will be used as input together with the prompt:
 
 ```python
 async with SydneyClient() as sydney:
-    response = await sydney.ask("What does this picture show?", attachment="<image-url>")
+    response = await sydney.ask("What does this picture show?", attachment="<image-url-or-path>")
     print(response)
 ```
 

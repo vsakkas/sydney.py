@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 from asyncio import TimeoutError
+from base64 import b64encode
 from os import getenv
 from typing import AsyncGenerator
 from urllib import parse
 
 import websockets.client as websockets
-from aiohttp import ClientSession, TCPConnector
+from aiohttp import ClientSession, FormData, TCPConnector
 from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
@@ -47,7 +48,7 @@ from sydney.exceptions import (
     NoResponseException,
     ThrottledRequestException,
 )
-from sydney.utils import as_json, cookies_as_dict
+from sydney.utils import as_json, check_if_url, cookies_as_dict
 
 
 class SydneyClient:
@@ -230,7 +231,11 @@ class SydneyClient:
             "type": 4,
         }
 
-    def _build_upload_arguments(self, attachment: str) -> str:
+    def _build_upload_arguments(
+        self, attachment: str, image_base64: bytes | None = None
+    ) -> FormData:
+        data = FormData()
+
         payload = {
             "imageInfo": {"url": attachment},
             "knowledgeRequest": {
@@ -243,20 +248,25 @@ class SydneyClient:
                 },
             },
         }
-
-        return (
-            f'--\r\nContent-Disposition: form-data; name="knowledgeRequest"\r\n\r\n'
-            f"{json.dumps(payload)}\r\n--\r\n"
+        data.add_field(
+            "knowledgeRequest", json.dumps(payload), content_type="application/json"
         )
+
+        if image_base64:
+            data.add_field(
+                "imageBase64", image_base64, content_type="application/octet-stream"
+            )
+
+        return data
 
     async def _upload_attachment(self, attachment: str) -> dict:
         """
-        Upload an image to Copilot.
+        Upload an image to Copilot from a URL or file.
 
         Parameters
         ----------
         attachment : str
-            The URL to the attachment image to be uploaded.
+            The URL or file path to the attachment image to be uploaded.
 
         Returns
         -------
@@ -265,6 +275,11 @@ class SydneyClient:
             to https://www.bing.com/images/blob?bcid=[ID] and can obtain the uploaded image from Copilot.
         """
         cookies = cookies_as_dict(self.bing_cookies) if self.bing_cookies else {}
+
+        image_base64 = None
+        if not check_if_url(attachment):
+            with open(attachment, "rb") as file:
+                image_base64 = b64encode(file.read())
 
         session = ClientSession(
             headers=KBLOB_HEADERS,
@@ -275,7 +290,7 @@ class SydneyClient:
             else None,  # Resolve HTTPS issue when proxy support is enabled.
         )
 
-        data = self._build_upload_arguments(attachment)
+        data = self._build_upload_arguments(attachment, image_base64)
 
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
@@ -478,7 +493,7 @@ class SydneyClient:
         prompt : str
             The prompt that needs to be sent to Copilot.
         attachment : str
-            The URL to an image to be included with the prompt.
+            The URL or local path to an image to be included with the prompt.
         context: str
             Website content to be used as additional context with the prompt.
         citations : bool, optional
@@ -535,7 +550,7 @@ class SydneyClient:
         prompt : str
             The prompt that needs to be sent to Copilot.
         attachment : str
-            The URL to an image to be included with the prompt.
+            The URL or local path to an image to be included with the prompt.
         context: str
             Website content to be used as additional context with the prompt.
         citations : bool, optional
