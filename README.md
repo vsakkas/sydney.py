@@ -170,11 +170,11 @@ Both versions of the `ask` method support the same parameters.
 
 ### Attachment
 
-It is also possible to provide a URL to an image as an attachment, which will be used as input together with the prompt:
+It is also possible to provide a URL to an image or a local image file path as an attachment, which will be used as input together with the prompt:
 
 ```python
 async with SydneyClient() as sydney:
-    response = await sydney.ask("What does this picture show?", attachment="<image-url>")
+    response = await sydney.ask("What does this picture show?", attachment="<image-url-or-path>")
     print(response)
 ```
 
