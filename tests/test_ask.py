@@ -1,4 +1,7 @@
+from tempfile import NamedTemporaryFile
+
 import pytest
+from aiohttp import ClientSession
 from thefuzz import fuzz
 
 from sydney import SydneyClient
@@ -111,8 +114,12 @@ async def test_ask_stream_creative() -> bool:
         "Hello! How can I help you today? 😊",
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
+        "Hi, this is Bing. I'm happy to chat with you. 😊",
+        "Hello, this is Bing. I'm happy to chat with you. 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
+        "Hello, this is Bing. I am a chat mode of Microsoft Bing. I can understand and communicate fluently in the language of your choice. I can also help you with various tasks such as writing, searching, creating, and more. 😊",
         "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and queries. I can also generate creative content such as poems, stories, code, essays, songs, celebrity parodies, and more. What would you like to talk about? 🤗",
+        "Hello, this is Bing. I'm a chat mode of Microsoft Bing that can understand and communicate fluently in your language of choice. I can also generate imaginative and innovative content such as poems, stories, code, essays, songs, celebrity parodies, and more using my own words and knowledge. How can I help you today? 😊,,"
     ]
 
     async with SydneyClient(style="creative") as sydney:
@@ -199,12 +206,30 @@ async def test_ask_raw_suggestions_citations() -> None:
 
 
 @pytest.mark.asyncio
-async def test_ask_attachment() -> None:
+async def test_ask_attachment_url() -> None:
     async with SydneyClient() as sydney:
         response = await sydney.ask("What does this image show?", attachment=URL)
 
         assert isinstance(response, str)
         assert "puppy" in response.lower()
+
+
+@pytest.mark.asyncio
+async def test_ask_attachment_file() -> None:
+    with NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+        file_path = temp_file.name
+
+        async with ClientSession() as session:
+            async with session.get(URL) as response:
+                temp_file.write(await response.read())
+
+        async with SydneyClient() as sydney:
+            response = await sydney.ask(
+                "What does this image show?", attachment=file_path
+            )
+
+            assert isinstance(response, str)
+            assert "puppy" in response.lower()
 
 
 @pytest.mark.asyncio
