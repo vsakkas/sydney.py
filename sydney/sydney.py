@@ -387,9 +387,10 @@ class SydneyClient:
                     if raw:
                         yield response, None
                     elif citations:
-                        yield messages[0]["adaptiveCards"][0]["body"][0]["text"], None
+                        if adaptiveCards[0]["body"][0].get("text"):
+                            yield adaptiveCards[0]["body"][0]["text"], None
                     else:
-                        if ("text" in messages[0]) :
+                        if messages[0].get("text"):
                             yield messages[0]["text"], None
                 # Handle type 2 messages.
                 elif response.get("type") == 2:
