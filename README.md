@@ -118,7 +118,7 @@ await sydney.start_conversation()
 
 # Conversation
 
-await sydney.end_conversation()
+await sydney.close_conversation()
 ```
 
 Alternatively, you can use the `async with` statement to keep the code compact:
