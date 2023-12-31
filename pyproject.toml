@@ -11,6 +11,7 @@ packages = [{ include = "sydney" }]
 python = "^3.9"
 aiohttp = "^3.8.6"
 websockets = "^11.0.3"
+brotli = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.1"
