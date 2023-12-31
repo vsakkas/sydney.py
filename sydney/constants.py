@@ -30,7 +30,7 @@ KBLOB_HEADERS = {
     "User-Agent": USER_AGENT,
 }
 
-BUNDLE_VERSION = "1.1342.3-cplt.7"
+BUNDLE_VERSION = "1.1418.9-suno"
 
 BING_CREATE_CONVERSATION_URL = (
     f"https://www.bing.com/turing/conversation/create?bundleVersion={BUNDLE_VERSION}"
