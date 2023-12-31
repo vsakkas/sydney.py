@@ -31,7 +31,10 @@ async def test_ask_precise() -> bool:
 
 @pytest.mark.asyncio
 async def test_ask_balanced() -> bool:
-    expected_responses = ["Hello! How can I help you today? 😊"]
+    expected_responses = [
+        "Hello! How can I help you today? 😊",
+        "Hello there! How can I assist you today? 😊",
+    ]
 
     async with SydneyClient(style="balanced") as sydney:
         response = await sydney.ask("Hello, Bing!")
@@ -51,9 +54,15 @@ async def test_ask_creative() -> bool:
         "Hello! How can I help you today? 😊",
         "Hello, this is Bing. How can I help? 😊",
         "Hello, this is Bing. Nice to meet you! 😊",
+        "Hi, this is Bing. I'm happy to chat with you. 😊",
+        "Hello, this is Bing. I'm happy to chat with you. 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. 😊",
+        "Hello, this is Bing. I am a chat mode of Microsoft Bing. I can understand and communicate fluently in the language of your choice. I can also help you with various tasks such as writing, searching, creating, and more. 😊",
         "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and queries. I can also generate creative content such as poems, stories, code, essays, songs, celebrity parodies, and more. What would you like to talk about? 🤗",
-        "Hi, this is Bing. I'm glad you're here. 😊 I can help you with various tasks, such as searching the web, creating graphic art, generating creative content, and more. Just ask me anything and I'll do my best to assist you. 🙌 What would you like to do today,?",
+        "Hello, this is Bing. I'm a chat mode of Microsoft Bing that can understand and communicate fluently in your language of choice. I can also generate imaginative and innovative content such as poems, stories, code, essays, songs, celebrity parodies, and more using my own words and knowledge. How can I help you today? 😊",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. 😊 You can ask me anything you want, such as facts, trivia, jokes, poems, stories, code, songs, and more. I can also create graphic art based on your prompts. What would you like to chat about today?",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. I can understand and communicate fluently in the language of your choice, such as English, 中文, 日本語, Español, Français, Deutsch, and others. 😊 What would you like to chat about today? 🤗.",
     ]
 
     async with SydneyClient(style="creative") as sydney:
@@ -62,7 +71,7 @@ async def test_ask_creative() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 80:
+            if score >= 70:  # Lower score since creative mode is unpredictable.
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
@@ -92,7 +101,10 @@ async def test_ask_stream_precise() -> bool:
 
 @pytest.mark.asyncio
 async def test_ask_stream_balanced() -> bool:
-    expected_responses = ["Hello! How can I help you today? 😊"]
+    expected_responses = [
+        "Hello! How can I help you today? 😊",
+        "Hello there! How can I assist you today? 😊",
+    ]
 
     async with SydneyClient(style="balanced") as sydney:
         response = ""
@@ -117,9 +129,12 @@ async def test_ask_stream_creative() -> bool:
         "Hi, this is Bing. I'm happy to chat with you. 😊",
         "Hello, this is Bing. I'm happy to chat with you. 😊",
         "Hi, this is Bing. I'm happy to chat with you. 😊 What would you like to talk about?",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. 😊",
         "Hello, this is Bing. I am a chat mode of Microsoft Bing. I can understand and communicate fluently in the language of your choice. I can also help you with various tasks such as writing, searching, creating, and more. 😊",
         "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and queries. I can also generate creative content such as poems, stories, code, essays, songs, celebrity parodies, and more. What would you like to talk about? 🤗",
-        "Hello, this is Bing. I'm a chat mode of Microsoft Bing that can understand and communicate fluently in your language of choice. I can also generate imaginative and innovative content such as poems, stories, code, essays, songs, celebrity parodies, and more using my own words and knowledge. How can I help you today? 😊,,"
+        "Hello, this is Bing. I'm a chat mode of Microsoft Bing that can understand and communicate fluently in your language of choice. I can also generate imaginative and innovative content such as poems, stories, code, essays, songs, celebrity parodies, and more using my own words and knowledge. How can I help you today? 😊",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. 😊 You can ask me anything you want, such as facts, trivia, jokes, poems, stories, code, songs, and more. I can also create graphic art based on your prompts. What would you like to chat about today?",
+        "Hi, this is Bing. I'm a chat mode of Microsoft Bing that can help you with various tasks and topics. I can understand and communicate fluently in the language of your choice, such as English, 中文, 日本語, Español, Français, Deutsch, and others. 😊 What would you like to chat about today? 🤗.",
     ]
 
     async with SydneyClient(style="creative") as sydney:
@@ -130,7 +145,7 @@ async def test_ask_stream_creative() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 80:
+            if score >= 70:  # Lower score since creative mode is unpredictable.
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
