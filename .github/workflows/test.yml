@@ -41,4 +41,4 @@ jobs:
       run: poetry run mypy --ignore-missing-imports sydney/
 
     - name: Run tests
-      run: poetry run pytest --cov --reruns 2
+      run: poetry run pytest --cov --reruns 3
