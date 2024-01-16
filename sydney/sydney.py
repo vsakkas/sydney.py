@@ -7,9 +7,8 @@ from os import getenv
 from typing import AsyncGenerator
 from urllib import parse
 
-import websockets.client as websockets
+from websocket import WebSocket
 from aiohttp import ClientSession, FormData, TCPConnector
-from websockets.client import WebSocketClientProtocol
 
 from sydney.constants import (
     BING_BLOB_URL,
@@ -57,6 +56,9 @@ class SydneyClient:
         style: str = "balanced",
         bing_cookies: str | None = None,
         use_proxy: bool = False,
+        http_proxy: str | None = None,
+        http_proxy_port: str | None = None,
+        http_proxy_auth: tuple | None = None
     ) -> None:
         """
         Client for Copilot (formerly named Bing Chat), also known as Sydney.
@@ -76,6 +78,9 @@ class SydneyClient:
         """
         self.bing_cookies = bing_cookies if bing_cookies else getenv("BING_COOKIES")
         self.use_proxy = use_proxy
+        self.http_proxy = http_proxy
+        self.http_proxy_port = http_proxy_port
+        self.http_proxy_auth = http_proxy_auth
         self.conversation_style: ConversationStyle = getattr(
             ConversationStyle, style.upper()
         )
@@ -89,7 +94,7 @@ class SydneyClient:
         self.invocation_id: int | None = None
         self.number_of_messages: int | None = None
         self.max_messages: int | None = None
-        self.wss_client: WebSocketClientProtocol | None = None
+        self.wss_client: WebSocket() | None = None
         self.session: ClientSession | None = None
 
     async def __aenter__(self) -> SydneyClient:
@@ -339,17 +344,19 @@ class SydneyClient:
         if self.encrypted_conversation_signature:
             bing_chathub_url += f"?sec_access_token={parse.quote(self.encrypted_conversation_signature)}"
 
+        ws = WebSocket()
         # Create a websocket connection with Copilot for sending and receiving messages.
         try:
-            self.wss_client = await websockets.connect(
-                bing_chathub_url, extra_headers=CHATHUB_HEADERS, max_size=None
+            ws.connect(
+                bing_chathub_url, extra_headers=CHATHUB_HEADERS, max_size=None, http_proxy_host=self.http_proxy, http_proxy_port=self.http_proxy_port, http_proxy_auth=self.http_proxy_auth
             )
+           
         except TimeoutError:
             raise ConnectionTimeoutException(
                 "Failed to connect to Copilot, connection timed out"
             ) from None
-        await self.wss_client.send(as_json({"protocol": "json", "version": 1}))
-        await self.wss_client.recv()
+        ws.send(as_json({"protocol": "json", "version": 1}))
+        ws.recv()
 
         attachment_info = None
         if attachment:
@@ -363,11 +370,11 @@ class SydneyClient:
             )
         self.invocation_id += 1
 
-        await self.wss_client.send(as_json(request))
+        ws.send(as_json(request))
 
         streaming = True
         while streaming:
-            objects = str(await self.wss_client.recv()).split(DELIMETER)
+            objects = str(ws.recv()).split(DELIMETER)
             for obj in objects:
                 if not obj:
                     continue
@@ -446,7 +453,7 @@ class SydneyClient:
                     # Exit, type 2 is the last message.
                     streaming = False
 
-        await self.wss_client.close()
+        ws.close()
 
     async def start_conversation(self) -> None:
         """
