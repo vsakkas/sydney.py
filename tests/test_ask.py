@@ -15,7 +15,7 @@ async def test_ask_precise() -> bool:
         "Hello! This is Bing. How can I help you today? 😊",
         "Hello! How can I help you today? 😊",
         "Hello! How can I assist you today?",
-        "Hello! Just to clarify, I'm Microsoft Copilot, an AI companion. How can I assist you today? 😊,,,,,,,,"
+        "Hello! Just to clarify, I'm Microsoft Copilot, an AI companion. How can I assist you today? 😊",
     ]
 
     async with SydneyClient(style="precise") as sydney:
@@ -85,7 +85,7 @@ async def test_ask_stream_precise() -> bool:
         "Hello! This is Bing. How can I help you today? 😊",
         "Hello! How can I help you today? 😊",
         "Hello! How can I assist you today?",
-        "Hello! Just to clarify, I'm Microsoft Copilot, an AI companion. How can I assist you today? 😊,,,,,,,"
+        "Hello! Just to clarify, I'm Microsoft Copilot, an AI companion. How can I assist you today? 😊",
     ]
 
     async with SydneyClient(style="precise") as sydney:
