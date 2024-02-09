@@ -21,6 +21,8 @@ async def test_get_conversations_no_start_conversation() -> None:
 
     response = await sydney.get_conversations()
 
+    await sydney.close_conversation()
+
     assert "chats" in response
     assert "result" in response
     assert "clientId" in response
