@@ -26,9 +26,9 @@ CHATHUB_HEADERS = {
 }
 
 KBLOB_HEADERS = {
-    "Accept": "image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Language": "en-US,en;q=0.9",
     "Content-Type": "multipart/form-data",
     "Referer": "https://copilot.microsoft.com/",
     "Sec-Ch-Ua": '"Microsoft Edge";v="121", "Chromium";v="121", "Not?A_Brand";v="8"',
@@ -41,9 +41,11 @@ KBLOB_HEADERS = {
     "X-Edge-Shopping-Flag": "0",
 }
 
-BUNDLE_VERSION = "1.1381.12"
+BUNDLE_VERSION = "1.1573.2"
 
-BING_CREATE_CONVERSATION_URL = f"https://edgeservices.bing.com/edgesvc/turing/conversation/create?bundleVersion={BUNDLE_VERSION}"
+BING_CREATE_CONVERSATION_URL = (
+    f"https://copilot.microsoft.com/turing/conversation/create?bundleVersion={BUNDLE_VERSION}"
+)
 BING_GET_CONVERSATIONS_URL = "https://copilot.microsoft.com/turing/conversation/chats"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
 BING_KBLOB_URL = "https://copilot.microsoft.com/images/kblob"
