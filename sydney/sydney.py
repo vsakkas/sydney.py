@@ -364,8 +364,11 @@ class SydneyClient:
                     if raw:
                         yield response, None
                     elif citations:
+                        # Fix index in case where the first body item has an `altText` field instead of `text`.
                         if adaptiveCards[0]["body"][0].get("text"):
                             yield adaptiveCards[0]["body"][0]["text"], None
+                        else:
+                            yield adaptiveCards[0]["body"][1]["text"], None
                     else:
                         if messages[0].get("text"):
                             yield messages[0]["text"], None
@@ -413,9 +416,11 @@ class SydneyClient:
                             ]
 
                         if citations:
-                            yield messages[i]["adaptiveCards"][0]["body"][0][
-                                "text"
-                            ], suggested_responses
+                            # Fix index in case where the first body item has an `altText` field instead of `text`.
+                            if messages[i]["adaptiveCards"][0]["body"][0].get("text"):
+                                yield messages[i]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
+                            else:
+                                yield messages[i]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
                         else:
                             yield messages[i]["text"], suggested_responses
 
