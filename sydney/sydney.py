@@ -232,7 +232,7 @@ class SydneyClient:
         data = FormData()
 
         payload = {
-            "imageInfo": {"url": attachment},
+            "imageInfo": {} if image_base64 else {"url": attachment},
             "knowledgeRequest": {
                 "invokedSkills": ["ImageById"],
                 "subscriptionId": "Bing.Chat.Multimodal",
@@ -399,7 +399,7 @@ class SydneyClient:
                         return  # Return empty message.
 
                     # Fix index in some cases where the last message in an inline message.
-                    # Typically occurs when an attechment is provided.
+                    # Typically occurs when an attachment is provided.
                     i = -1
                     adaptiveCards = messages[-1].get("adaptiveCards")
                     if adaptiveCards and adaptiveCards[-1]["body"][0].get("inlines"):
