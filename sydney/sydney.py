@@ -420,7 +420,7 @@ class SydneyClient:
                             if messages[i]["adaptiveCards"][0]["body"][0].get("text"):
                                 yield messages[i]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
                             else:
-                                yield messages[i]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
+                                yield messages[i]["adaptiveCards"][0]["body"][1]["text"], suggested_responses
                         else:
                             yield messages[i]["text"], suggested_responses
 
