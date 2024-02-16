@@ -10,7 +10,7 @@ packages = [{ include = "sydney" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 aiohttp = "^3.9.3"
-websockets = "^12.0"
+websocket-client = "^1.7.0"
 brotli = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
