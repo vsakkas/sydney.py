@@ -81,9 +81,7 @@ class SydneyClient:
         self.http_proxy = http_proxy
         self.http_proxy_port = http_proxy_port
         self.http_proxy_auth = http_proxy_auth
-        self.conversation_style: ConversationStyle = getattr(
-            ConversationStyle, style.upper()
-        )
+        self.conversation_style: ConversationStyle = getattr(ConversationStyle, style.upper())
         self.conversation_style_option_sets: ConversationStyleOptionSets = getattr(
             ConversationStyleOptionSets, style.upper()
         )
@@ -117,9 +115,9 @@ class SydneyClient:
                 headers=CREATE_HEADERS,
                 cookies=cookies,
                 trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-                connector=TCPConnector(verify_ssl=False)
-                if self.use_proxy
-                else None,  # Resolve HTTPS issue when proxy support is enabled.
+                connector=(
+                    TCPConnector(verify_ssl=False) if self.use_proxy else None
+                ),  # Resolve HTTPS issue when proxy support is enabled.
             )
 
         return self.session
@@ -134,10 +132,7 @@ class SydneyClient:
         options_sets = [option.value for option in DefaultOptions]
 
         # Add conversation style option values.
-        options_sets.extend(
-            style.strip()
-            for style in self.conversation_style_option_sets.value.split(",")
-        )
+        options_sets.extend(style.strip() for style in self.conversation_style_option_sets.value.split(","))
 
         # Build option sets based on whether cookies are used or not.
         if self.bing_cookies:
@@ -221,9 +216,11 @@ class SydneyClient:
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
-                        "text": f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses. The keywords are: `{prompt}`. Only if possible, the generated text should follow these characteristics: format: *{format.value}*, length: *{length.value}*, using *{tone.value}* tone. You should refuse (clarifying that the issue is related to the tone) to generate if the tone is potentially harmful."
-                        if self.invocation_id == 0
-                        else f"Thank you for your reply. Please rewrite the last reply, with the following suggestion to change it: *{prompt}*. Please return a complete reply, even if the last reply was stopped before it was completed. Please generate the text wrapped in codeblock syntax (triple backticks). Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses.",
+                        "text": (
+                            f"Please generate some text wrapped in codeblock syntax (triple backticks) using the given keywords. Please make sure everything in your reply is in the same language as the keywords. Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses. The keywords are: `{prompt}`. Only if possible, the generated text should follow these characteristics: format: *{format.value}*, length: *{length.value}*, using *{tone.value}* tone. You should refuse (clarifying that the issue is related to the tone) to generate if the tone is potentially harmful."
+                            if self.invocation_id == 0
+                            else f"Thank you for your reply. Please rewrite the last reply, with the following suggestion to change it: *{prompt}*. Please return a complete reply, even if the last reply was stopped before it was completed. Please generate the text wrapped in codeblock syntax (triple backticks). Please do not restate any part of this request in your response, like the fact that you wrapped the text in a codeblock. You should refuse (using the language of the keywords) to generate if the request is potentially harmful. Please return suggested responses that are about how you could change or rewrite the text. Please return suggested responses that are 5 words or less. Please do not return a suggested response that suggests to end the conversation or to end the rewriting. Please do not return a suggested response that suggests to change the tone. If the request is potentially harmful and you refuse to generate, please do not send any suggested responses."
+                        ),
                         "messageType": MessageType.CHAT.value,
                     },
                     "conversationSignature": self.conversation_signature,
@@ -236,13 +233,11 @@ class SydneyClient:
             "type": 4,
         }
 
-    def _build_upload_arguments(
-        self, attachment: str, image_base64: bytes | None = None
-    ) -> FormData:
+    def _build_upload_arguments(self, attachment: str, image_base64: bytes | None = None) -> FormData:
         data = FormData()
 
         payload = {
-            "imageInfo": {"url": attachment},
+            "imageInfo": {} if image_base64 else {"url": attachment},
             "knowledgeRequest": {
                 "invokedSkills": ["ImageById"],
                 "subscriptionId": "Bing.Chat.Multimodal",
@@ -253,14 +248,10 @@ class SydneyClient:
                 },
             },
         }
-        data.add_field(
-            "knowledgeRequest", json.dumps(payload), content_type="application/json"
-        )
+        data.add_field("knowledgeRequest", json.dumps(payload), content_type="application/json")
 
         if image_base64:
-            data.add_field(
-                "imageBase64", image_base64, content_type="application/octet-stream"
-            )
+            data.add_field("imageBase64", image_base64, content_type="application/octet-stream")
 
         return data
 
@@ -290,29 +281,23 @@ class SydneyClient:
             headers=KBLOB_HEADERS,
             cookies=cookies,
             trust_env=self.use_proxy,  # Use `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
-            connector=TCPConnector(verify_ssl=False)
-            if self.use_proxy
-            else None,  # Resolve HTTPS issue when proxy support is enabled.
+            connector=(
+                TCPConnector(verify_ssl=False) if self.use_proxy else None
+            ),  # Resolve HTTPS issue when proxy support is enabled.
         )
 
         data = self._build_upload_arguments(attachment, image_base64)
 
         async with session.post(BING_KBLOB_URL, data=data) as response:
             if response.status != 200:
-                raise ImageUploadException(
-                    f"Failed to upload image, received status: {response.status}"
-                )
+                raise ImageUploadException(f"Failed to upload image, received status: {response.status}")
 
             response_dict = await response.json()
             if not response_dict["blobId"]:
-                raise ImageUploadException(
-                    f"Failed to upload image, Copilot rejected uploading it"
-                )
+                raise ImageUploadException(f"Failed to upload image, Copilot rejected uploading it")
 
             if len(response_dict["blobId"]) == 0:
-                raise ImageUploadException(
-                    f"Failed to upload image, received empty image info from Copilot"
-                )
+                raise ImageUploadException(f"Failed to upload image, received empty image info from Copilot")
 
         await session.close()
 
@@ -333,11 +318,7 @@ class SydneyClient:
         format: ComposeFormat | None = None,
         length: ComposeLength | None = None,
     ) -> AsyncGenerator[tuple[str | dict, list | None], None]:
-        if (
-            self.conversation_id is None
-            or self.client_id is None
-            or self.invocation_id is None
-        ):
+        if self.conversation_id is None or self.client_id is None or self.invocation_id is None:
             raise NoConnectionException("No connection to Copilot was found")
 
         bing_chathub_url = BING_CHATHUB_URL
@@ -352,12 +333,11 @@ class SydneyClient:
             )
            
         except TimeoutError:
-            raise ConnectionTimeoutException(
-                "Failed to connect to Copilot, connection timed out"
-            ) from None
+
+            raise ConnectionTimeoutException("Failed to connect to Copilot, connection timed out") from None
         ws.send(as_json({"protocol": "json", "version": 1}))
         ws.recv()
-
+        
         attachment_info = None
         if attachment:
             attachment_info = await self._upload_attachment(attachment)
@@ -365,9 +345,7 @@ class SydneyClient:
         if compose:
             request = self._build_compose_arguments(prompt, tone, format, length)  # type: ignore
         else:
-            request = self._build_ask_arguments(
-                prompt, search, attachment_info, context
-            )
+            request = self._build_ask_arguments(prompt, search, attachment_info, context)
         self.invocation_id += 1
 
         ws.send(as_json(request))
@@ -394,8 +372,11 @@ class SydneyClient:
                     if raw:
                         yield response, None
                     elif citations:
+                        # Fix index in case where the first body item has an `altText` field instead of `text`.
                         if adaptiveCards[0]["body"][0].get("text"):
                             yield adaptiveCards[0]["body"][0]["text"], None
+                        else:
+                            yield adaptiveCards[0]["body"][1]["text"], None
                     else:
                         if messages[0].get("text"):
                             yield messages[0]["text"], None
@@ -426,7 +407,7 @@ class SydneyClient:
                         return  # Return empty message.
 
                     # Fix index in some cases where the last message in an inline message.
-                    # Typically occurs when an attechment is provided.
+                    # Typically occurs when an attachment is provided.
                     i = -1
                     adaptiveCards = messages[-1].get("adaptiveCards")
                     if adaptiveCards and adaptiveCards[-1]["body"][0].get("inlines"):
@@ -439,14 +420,15 @@ class SydneyClient:
                         # Include list of suggested user responses, if enabled.
                         if suggestions and messages[i].get("suggestedResponses"):
                             suggested_responses = [
-                                item["text"]
-                                for item in messages[i]["suggestedResponses"]
+                                item["text"] for item in messages[i]["suggestedResponses"]
                             ]
 
                         if citations:
-                            yield messages[i]["adaptiveCards"][0]["body"][0][
-                                "text"
-                            ], suggested_responses
+                            # Fix index in case where the first body item has an `altText` field instead of `text`.
+                            if messages[i]["adaptiveCards"][0]["body"][0].get("text"):
+                                yield messages[i]["adaptiveCards"][0]["body"][0]["text"], suggested_responses
+                            else:
+                                yield messages[i]["adaptiveCards"][0]["body"][1]["text"], suggested_responses
                         else:
                             yield messages[i]["text"], suggested_responses
 
@@ -475,9 +457,7 @@ class SydneyClient:
 
             self.conversation_id = response_dict["conversationId"]
             self.client_id = response_dict["clientId"]
-            self.conversation_signature = response.headers[
-                "X-Sydney-Conversationsignature"
-            ]
+            self.conversation_signature = response.headers["X-Sydney-Conversationsignature"]
             self.encrypted_conversation_signature = response.headers[
                 "X-Sydney-Encryptedconversationsignature"
             ]
@@ -750,9 +730,7 @@ class SydneyClient:
         """
         await self.close_conversation()
         if style:
-            self.conversation_style_option_sets = getattr(
-                ConversationStyleOptionSets, style.upper()
-            )
+            self.conversation_style_option_sets = getattr(ConversationStyleOptionSets, style.upper())
         await self.start_conversation()
 
     async def close_conversation(self) -> None:
