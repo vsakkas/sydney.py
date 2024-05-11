@@ -267,4 +267,3 @@ async def test_ask_logic_precise() -> bool:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
-        assert False, f"Unexpected response: {response}, match score: {score}"
