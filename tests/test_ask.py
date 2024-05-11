@@ -50,6 +50,8 @@ async def test_ask_balanced() -> bool:
 @pytest.mark.asyncio
 async def test_ask_creative() -> bool:
     expected_responses = [
+        "Hello! How can I assist you today? 😊",
+        "Hi there! How can I assist you today? 😊",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you and help you with various tasks. 😊 What would you like to talk about today?",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you and help you with various tasks. 😊 What would you like to talk about?",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you. 😊 What would you like to talk about?",
@@ -115,6 +117,8 @@ async def test_ask_stream_balanced() -> bool:
 @pytest.mark.asyncio
 async def test_ask_stream_creative() -> bool:
     expected_responses = [
+        "Hello! How can I assist you today? 😊",
+        "Hi there! How can I assist you today? 😊",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you and help you with various tasks. 😊 What would you like to talk about today?",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you and help you with various tasks. 😊 What would you like to talk about?",
         "Hi there, this is Copilot, your AI companion. I'm happy to chat with you. 😊 What would you like to talk about?",
@@ -262,4 +266,5 @@ async def test_ask_logic_precise() -> bool:
             if score >= 80:
                 return True
 
+        assert False, f"Unexpected response: {response}, match score: {score}"
         assert False, f"Unexpected response: {response}, match score: {score}"
