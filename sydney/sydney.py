@@ -310,12 +310,12 @@ class SydneyClient:
             response_dict = await response.json()
             if not response_dict["blobId"]:
                 raise ImageUploadException(
-                    f"Failed to upload image, Copilot rejected uploading it"
+                    "Failed to upload image, Copilot rejected uploading it"
                 )
 
             if len(response_dict["blobId"]) == 0:
                 raise ImageUploadException(
-                    f"Failed to upload image, received empty image info from Copilot"
+                    "Failed to upload image, received empty image info from Copilot"
                 )
 
         await session.close()
