@@ -289,7 +289,7 @@ async def test_ask_travel_persona() -> bool:
 
 
 @pytest.mark.asyncio
-async def test_ask_travel_cooking() -> bool:
+async def test_ask_cooking_persona() -> bool:
     expected_responses = [
         "Hello! This is Cooking Assistant. How can I assist you today? 😊",
         "Hello! This is Cooking Assistant. How can I assist you in the kitchen today? 😊",
@@ -308,7 +308,7 @@ async def test_ask_travel_cooking() -> bool:
 
 
 @pytest.mark.asyncio
-async def test_ask_travel_fitness() -> bool:
+async def test_ask_fitness_persona() -> bool:
     expected_responses = [
         "Hello! How can I assist you with your fitness journey today? 😊",
         "Hello! This is Fitness Trainer. How can I assist you today? 😊",
@@ -325,3 +325,10 @@ async def test_ask_travel_fitness() -> bool:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
+
+
+@pytest.mark.asyncio
+async def test_ask_invalid_style() -> None:
+    with pytest.raises(KeyError):
+        async with SydneyClient(style="invalid") as sydney:
+            _ = await sydney.ask("Hello, Copilot!")
