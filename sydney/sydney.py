@@ -82,13 +82,11 @@ class SydneyClient:
         """
         self.bing_cookies = bing_cookies if bing_cookies else getenv("BING_COOKIES")
         self.use_proxy = use_proxy
-        self.conversation_style: ConversationStyle = getattr(
-            ConversationStyle, style.upper()
+        self.conversation_style: ConversationStyle = ConversationStyle[style.upper()]
+        self.conversation_style_option_sets: ConversationStyleOptionSets = (
+            ConversationStyleOptionSets[style.upper()]
         )
-        self.conversation_style_option_sets: ConversationStyleOptionSets = getattr(
-            ConversationStyleOptionSets, style.upper()
-        )
-        self.persona: GPTPersonaID = getattr(GPTPersonaID, persona.upper())
+        self.persona: GPTPersonaID = GPTPersonaID[persona.upper()]
         self.conversation_signature: str | None = None
         self.encrypted_conversation_signature: str | None = None
         self.conversation_id: str | None = None
@@ -665,8 +663,8 @@ class SydneyClient:
         """
         # Get the enum values corresponding to the given tone, format, and length.
         compose_tone = getattr(ComposeTone, tone.upper(), CustomComposeTone(tone))
-        compose_format = getattr(ComposeFormat, format.upper())
-        compose_length = getattr(ComposeLength, length.upper())
+        compose_format = ComposeFormat[format.upper()]
+        compose_length = ComposeLength[length.upper()]
 
         async for response, suggested_responses in self._ask(
             prompt,
@@ -731,8 +729,8 @@ class SydneyClient:
         """
         # Get the enum values corresponding to the given tone, format, and length.
         compose_tone = getattr(ComposeTone, tone.upper(), CustomComposeTone(tone))
-        compose_format = getattr(ComposeFormat, format.upper())
-        compose_length = getattr(ComposeLength, length.upper())
+        compose_format = ComposeFormat[format.upper()]
+        compose_length = ComposeLength[length.upper()]
 
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
@@ -777,9 +775,9 @@ class SydneyClient:
         """
         await self.close_conversation()
         if style:
-            self.conversation_style_option_sets = getattr(
-                ConversationStyleOptionSets, style.upper()
-            )
+            self.conversation_style_option_sets = ConversationStyleOptionSets[
+                style.upper()
+            ]
         await self.start_conversation()
 
     async def close_conversation(self) -> None:
