@@ -50,7 +50,7 @@ from sydney.exceptions import (
     NoResponseException,
     ThrottledRequestException,
 )
-from sydney.utils import as_json, check_if_url, cookies_as_dict
+from sydney.utils import as_json, check_if_url, cookies_as_dict, get_iso_timestamp
 
 
 class SydneyClient:
@@ -174,6 +174,7 @@ class SydneyClient:
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
+                        "timestamp": get_iso_timestamp(),
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
                         "imageUrl": image_url,
@@ -239,6 +240,7 @@ class SydneyClient:
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
+                        "timestamp": get_iso_timestamp(),
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
                     },
