@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from urllib.parse import urlparse
 
 from sydney.constants import DELIMETER
@@ -26,3 +27,7 @@ def check_if_url(string: str) -> bool:
     if parsed_string.scheme and parsed_string.netloc:
         return True
     return False
+
+
+def get_iso_timestamp() -> str:
+    return datetime.now().astimezone().replace(microsecond=0).isoformat()
