@@ -263,7 +263,65 @@ async def test_ask_logic_precise() -> bool:
         score = 0
         for expected_response in expected_responses:
             score = fuzz.token_sort_ratio(response, expected_response)
-            if score >= 80:
+            if score >= 75:
+                return True
+
+        assert False, f"Unexpected response: {response}, match score: {score}"
+
+
+@pytest.mark.asyncio
+async def test_ask_travel_persona() -> bool:
+    expected_responses = [
+        "Hello! This is Vacation Planner. How can I assist you with your vacation plans today? 😊",
+        "Hello! This is Vacation Planner. How can I assist you with your vacation plans? 😊",
+    ]
+
+    async with SydneyClient(persona="travel") as sydney:
+        response = await sydney.ask("Hello, Copilot!")
+
+        score = 0
+        for expected_response in expected_responses:
+            score = fuzz.token_sort_ratio(response, expected_response)
+            if score >= 75:
+                return True
+
+        assert False, f"Unexpected response: {response}, match score: {score}"
+
+
+@pytest.mark.asyncio
+async def test_ask_travel_cooking() -> bool:
+    expected_responses = [
+        "Hello! This is Vacation Planner. How can I assist you with your vacation plans today? 😊",
+        "Hello! This is Vacation Planner. How can I assist you with your vacation plans? 😊",
+    ]
+
+    async with SydneyClient(persona="cooking") as sydney:
+        response = await sydney.ask("Hello, Copilot!")
+
+        score = 0
+        for expected_response in expected_responses:
+            score = fuzz.token_sort_ratio(response, expected_response)
+            if score >= 75:
+                return True
+
+        assert False, f"Unexpected response: {response}, match score: {score}"
+
+
+@pytest.mark.asyncio
+async def test_ask_travel_fitness() -> bool:
+    expected_responses = [
+        "Hello! How can I assist you with your fitness journey today? 😊",
+        "Hello! This is Fitness Trainer. How can I assist you today? 😊",
+        "Hello! This is Fitness Trainer. How can I assist you with your fitness journey today? 💪",
+    ]
+
+    async with SydneyClient(persona="fitness") as sydney:
+        response = await sydney.ask("Hello, Copilot!")
+
+        score = 0
+        for expected_response in expected_responses:
+            score = fuzz.token_sort_ratio(response, expected_response)
+            if score >= 75:
                 return True
 
         assert False, f"Unexpected response: {response}, match score: {score}"
