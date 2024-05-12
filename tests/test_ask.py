@@ -291,8 +291,8 @@ async def test_ask_travel_persona() -> bool:
 @pytest.mark.asyncio
 async def test_ask_travel_cooking() -> bool:
     expected_responses = [
-        "Hello! This is Vacation Planner. How can I assist you with your vacation plans today? 😊",
-        "Hello! This is Vacation Planner. How can I assist you with your vacation plans? 😊",
+        "Hello! This is Cooking Assistant. How can I assist you today? 😊",
+        "Hello! This is Cooking Assistant. How can I assist you in the kitchen today? 😊",
     ]
 
     async with SydneyClient(persona="cooking") as sydney:
