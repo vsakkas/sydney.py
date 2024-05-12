@@ -33,8 +33,10 @@ from sydney.enums import (
     CustomComposeTone,
     DefaultComposeOptions,
     DefaultOptions,
+    GPTPersonaID,
     MessageType,
     NoSearchOptions,
+    PersonaOptions,
     ResultValue,
 )
 from sydney.exceptions import (
@@ -55,6 +57,7 @@ class SydneyClient:
     def __init__(
         self,
         style: str = "balanced",
+        persona: str = "copilot",
         bing_cookies: str | None = None,
         use_proxy: bool = False,
     ) -> None:
@@ -66,6 +69,9 @@ class SydneyClient:
         style : str
             The conversation style that Copilot will adopt. Must be one of the options listed
             in the `ConversationStyle` enum. Default is "balanced".
+        persona : str
+            The GPT persona that Copilot will adopt. Must be one of the options listed in the
+            `GPTPersonaID` enum. Default is "copilot".
         bing_cookies: str | None
             The cookies from Bing required to connect and use Copilot. If not provided,
             the `BING_COOKIES` environment variable is loaded instead. Default is None.
@@ -82,6 +88,7 @@ class SydneyClient:
         self.conversation_style_option_sets: ConversationStyleOptionSets = getattr(
             ConversationStyleOptionSets, style.upper()
         )
+        self.persona: GPTPersonaID = getattr(GPTPersonaID, persona.upper())
         self.conversation_signature: str | None = None
         self.encrypted_conversation_signature: str | None = None
         self.conversation_id: str | None = None
@@ -142,6 +149,10 @@ class SydneyClient:
         if not search:
             options_sets.extend(option.value for option in NoSearchOptions)
 
+        # Build option sets based on whether a non default GPT persona is used or not.
+        if self.persona != GPTPersonaID.COPILOT:
+            options_sets.append(PersonaOptions[self.persona.value.upper()].value)
+
         image_url, original_image_url = None, None
         if attachment_info:
             image_url = BING_BLOB_URL + attachment_info["blobId"]
@@ -160,7 +171,7 @@ class SydneyClient:
                     "conversationHistoryOptionsSets": [
                         option.value for option in ConversationHistoryOptionsSets
                     ],
-                    "gptId": "copilot",
+                    "gptId": self.persona.value,
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
@@ -175,6 +186,9 @@ class SydneyClient:
                         "id": self.client_id,
                     },
                     "tone": str(self.conversation_style.value),
+                    "extraExtensionParameters": {
+                        "gpt-creator-persona": {"personaId": self.persona.value}
+                    },
                     "spokenTextMode": "None",
                     "conversationId": self.conversation_id,
                 }

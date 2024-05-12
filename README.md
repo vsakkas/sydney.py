@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.20.6)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.21.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -17,6 +17,7 @@ Python Client for Copilot (formerly named Bing Chat), also known as Sydney.
 - Stream response tokens for real-time communication.
 - Retrieve citations and suggested user responses.
 - Enhance your prompts with images for an enriched experience.
+- Customize your experience using any of the supported personas.
 - Use asyncio for efficient and non-blocking I/O operations.
 
 ## Requirements
@@ -202,6 +203,25 @@ Searching the web is enabled by default.
 
 > [!NOTE]
 > Web search cannot be disabled when the response is streamed.
+
+
+### Personas
+
+It is possible to use specialized versions of Copilot, suitable for specific tasks or conversations:
+
+```python
+async with SydneyClient(persona="travel") as sydney:
+    response = await sydney.ask("Tourist attractions in Sydney")
+    print(response)
+```
+
+The available options for the `persona` parameter are:
+- `copilot`
+- `travel`
+- `cooking`
+- `fitness`
+
+By default, Sydney will use the `copilot` persona.
 
 ### Compose
 
