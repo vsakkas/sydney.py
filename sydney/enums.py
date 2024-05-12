@@ -59,6 +59,16 @@ class NoSearchOptions(Enum):
     NOSEARCHALL = "nosearchall"
 
 
+class PersonaOptions(Enum):
+    """
+    Options that are used with the non default GPT personas.
+    """
+
+    TRAVEL = "ai_persona_vacation_planner_with_examples"
+    COOKING = "ai_persona_cooking_assistant_w1shot"
+    FITNESS = "ai_persona_fitness_trainer_w1shot"
+
+
 class DefaultComposeOptions(Enum):
     """
     Options that are used in all compose API requests to Copilot.
@@ -158,6 +168,21 @@ class MessageType(Enum):
     SEMANTIC_SERP = "SemanticSerp"
     GENERATE_CONTENT_QUERY = "GenerateContentQuery"
     SEARCH_QUERY = "SearchQuery"
+
+
+class GPTPersonaID(Enum):
+    """
+    Allowed IDs for different GPT personas. Supported options are:
+    - `copilot` for using the default Copilot persona
+    - `travel` for using the vacation planner persona
+    - `cooking` for using the cooking assistant persona
+    - `fitness` for using the fitness trainer persona
+    """
+
+    COPILOT = "copilot"
+    TRAVEL = "travel"
+    COOKING = "cooking"
+    FITNESS = "fitness"
 
 
 class ResultValue(Enum):
