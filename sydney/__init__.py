@@ -1,1 +1,1 @@
-from .sydney import SydneyClient
+from .sydney import SydneyClient  # noqa: F401
