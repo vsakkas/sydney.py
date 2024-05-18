@@ -37,6 +37,9 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
+    - name: Run linter
+      run: poetry run ruff check sydney/
+
     - name: Run type checker
       run: poetry run mypy --ignore-missing-imports sydney/
 
