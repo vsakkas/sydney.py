@@ -11,7 +11,7 @@ on:
     - cron: '0 15 * * 5'
 
 env:
-  BING_U_COOKIE: ${{ secrets.BING_U_COOKIE }}
+  BING_COOKIES: ${{ secrets.BING_COOKIES }}
 
 jobs:
   build-and-test:
