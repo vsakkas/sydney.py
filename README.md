@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.21.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.21.1)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
 
@@ -221,7 +221,7 @@ The available options for the `persona` parameter are:
 - `cooking`
 - `fitness`
 
-By default, Sydney will use the `copilot` persona.
+By default, Sydney.py will use the `copilot` persona.
 
 ### Compose
 
