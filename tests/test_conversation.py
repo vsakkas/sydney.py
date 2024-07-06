@@ -21,7 +21,7 @@ async def test_get_conversations_no_start_conversation() -> None:
 
     response = await sydney.get_conversations()
 
-    await sydney.close_conversation()
+    await sydney.quit_current_conversation()
 
     assert "chats" in response
     assert "result" in response
