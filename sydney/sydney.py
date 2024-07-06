@@ -754,8 +754,8 @@ class SydneyClient:
         """
         # Get the enum values corresponding to the given tone, format, and length.
         compose_tone = getattr(ComposeTone, tone.upper(), CustomComposeTone(tone))
-        compose_format = getattr(ComposeFormat, format.upper())
-        compose_length = getattr(ComposeLength, length.upper())
+        compose_format = ComposeFormat[format.upper()]
+        compose_length = ComposeLength[length.upper()]
 
         previous_response: str | dict = ""
         async for response, suggested_responses in self._ask(
