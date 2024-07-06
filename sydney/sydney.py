@@ -800,9 +800,9 @@ class SydneyClient:
         """
         await self.quit_current_conversation()
         if style:
-            self.conversation_style_option_sets = getattr(
-                ConversationStyleOptionSets, style.upper()
-            )
+            self.conversation_style_option_sets = ConversationStyleOptionSets[
+                style.upper()
+            ]
         await self.start_new_conversation()
 
     async def quit_current_conversation(self) -> None:
