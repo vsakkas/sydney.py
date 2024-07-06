@@ -25,6 +25,8 @@ class ConversationLimitException(Exception):
 class CreateConversationException(Exception):
     pass
 
+class DeleteSingleConversationException(Exception):
+    pass
 
 class GetConversationsException(Exception):
     pass
