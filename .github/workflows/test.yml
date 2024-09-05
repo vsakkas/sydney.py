@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11"]
 
     steps:
     - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
       run: poetry install
 
     - name: Run linter
-      run: poetry run ruff check sydney/
+      run: poetry run ruff --output-format=github sydney/
 
     - name: Run type checker
       run: poetry run mypy --ignore-missing-imports sydney/
