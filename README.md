@@ -221,7 +221,7 @@ The available options for the `persona` parameter are:
 - `cooking`
 - `fitness`
 
-By default, Sydney will use the `copilot` persona.
+By default, Sydney.py will use the `copilot` persona.
 
 ### Compose
 
