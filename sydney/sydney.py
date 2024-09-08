@@ -4,7 +4,7 @@ import json
 from asyncio import TimeoutError
 from base64 import b64encode
 from os import getenv
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List, Dict, Union
 from urllib import parse
 
 import websockets.client as websockets
@@ -15,6 +15,7 @@ from sydney.constants import (
     BING_BLOB_URL,
     BING_CHATHUB_URL,
     BING_CREATE_CONVERSATION_URL,
+    BING_DELETE_SINGLE_CONVERSATION_URL,
     BING_GET_CONVERSATIONS_URL,
     BING_KBLOB_URL,
     CHATHUB_HEADERS,
@@ -44,6 +45,7 @@ from sydney.exceptions import (
     ConnectionTimeoutException,
     ConversationLimitException,
     CreateConversationException,
+    DeleteSingleConversationException,
     GetConversationsException,
     ImageUploadException,
     NoConnectionException,
@@ -60,6 +62,7 @@ class SydneyClient:
         persona: str = "copilot",
         bing_cookies: str | None = None,
         use_proxy: bool = False,
+        force_conv_deletion_on_exit_signal: bool = False
     ) -> None:
         """
         Client for Copilot (formerly named Bing Chat), also known as Sydney.
@@ -75,13 +78,16 @@ class SydneyClient:
         bing_cookies: str | None
             The cookies from Bing required to connect and use Copilot. If not provided,
             the `BING_COOKIES` environment variable is loaded instead. Default is None.
-        use_proxy: str | None
+        use_proxy: bool = False
             Flag to determine if an HTTP proxy will be used to start a conversation with Copilot. If set to True,
             the `HTTP_PROXY` and `HTTPS_PROXY` environment variables must be set to the address of the proxy to be used.
             If not provided, no proxy will be used. Default is False.
+        force_conv_deletion_on_exit_signal: bool = False
+            Flag to delete the conversation from Bing History when the SydneyClient is exited. Default is False.
         """
         self.bing_cookies = bing_cookies if bing_cookies else getenv("BING_COOKIES")
         self.use_proxy = use_proxy
+        self.force_conv_deletion_on_exit_signal = force_conv_deletion_on_exit_signal
         self.conversation_style: ConversationStyle = ConversationStyle[style.upper()]
         self.conversation_style_option_sets: ConversationStyleOptionSets = (
             ConversationStyleOptionSets[style.upper()]
@@ -98,11 +104,13 @@ class SydneyClient:
         self.session: ClientSession | None = None
 
     async def __aenter__(self) -> SydneyClient:
-        await self.start_conversation()
+        await self.start_new_conversation()
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
-        await self.close_conversation()
+        if self.force_conv_deletion_on_exit_signal:
+            await self.delete_current_conversation()
+        await self.quit_current_conversation()
 
     async def _get_session(self, force_close: bool = False) -> ClientSession:
         # Use _U cookie to create a conversation.
@@ -240,7 +248,6 @@ class SydneyClient:
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
-                        "timestamp": get_iso_timestamp(),
                         "text": prompt,
                         "messageType": MessageType.CHAT.value,
                     },
@@ -482,7 +489,23 @@ class SydneyClient:
 
         await self.wss_client.close()
 
-    async def start_conversation(self) -> None:
+    def create_conversation_context(self, messages: List[Dict[str, Union[str,List[Dict[str,Union[str,Dict[str,str]]]]]]]) -> str | None :
+        """
+        Create a conversation context so that Copilot can use it as a history of previous messages
+
+        Parameters
+        ----------
+        messages : List[Dict[str, Union[str,List[Dict[str,Union[str,Dict[str,str]]]]]]]
+            The history of previous messages, must be formatted using OpenAI syntax
+        """
+        return "".join(
+            ("[user]" if message['role'] == "user" else ("[sydney_system]" if message["role"] == "system" else "[bot]") ) + ("(#message)"
+            if message['role'] != "system"
+            else "(#additional_instructions)") + f"\n{message['content']}\n"
+            for message in messages[:-1]
+        ) if len(messages) > 1 else None
+    
+    async def start_new_conversation(self) -> None:
         """
         Connect to Copilot and create a new conversation.
         """
@@ -760,7 +783,7 @@ class SydneyClient:
                 else:
                     yield new_response
 
-    async def reset_conversation(self, style: str | None = None) -> None:
+    async def quit_current_and_start_new_conversation(self, style: str | None = None) -> None:
         """
         Clear current conversation information and connection and start new ones.
 
@@ -775,14 +798,14 @@ class SydneyClient:
             If None, the new conversation will use the same conversation style as the
             current conversation. Default is None.
         """
-        await self.close_conversation()
+        await self.quit_current_conversation()
         if style:
             self.conversation_style_option_sets = ConversationStyleOptionSets[
                 style.upper()
             ]
-        await self.start_conversation()
+        await self.start_new_conversation()
 
-    async def close_conversation(self) -> None:
+    async def quit_current_conversation(self) -> None:
         """
         Close all connections to Copilot. Clear conversation information.
         """
@@ -801,6 +824,31 @@ class SydneyClient:
         self.invocation_id = None
         self.number_of_messages = None
         self.max_messages = None
+    
+    async def delete_current_conversation(self) -> None:
+        data = {
+            "conversationId": self.conversation_id,
+            "participant": {
+                "id": self.client_id
+            },
+            "source": "cib",
+            "optionsSets": [
+                "autosave",
+                "savemem",
+                "uprofupd",
+                "uprofgen"
+            ],
+        }
+        headers = {
+            "Authorization": "Bearer " + self.conversation_signature
+        }
+        async with self.session.post(BING_DELETE_SINGLE_CONVERSATION_URL,json=data,headers=headers) as response:
+            if response.status != 200:
+                raise DeleteSingleConversationException(
+                    f"Failed to delete single conversation, received status: {response.status}"
+                )
+        await self.quit_current_conversation()
+
 
     async def get_conversations(self) -> dict:
         """

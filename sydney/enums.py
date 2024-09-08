@@ -22,7 +22,7 @@ class ConversationStyleOptionSets(Enum):
     - `precise` for concise and straightforward chat
     """
 
-    CREATIVE = "h3imaginative,clgalileo,gencontentv3"
+    CREATIVE = "h3imaginative,clgalileo,gencontentv3,gpt4orsp,gpt4ov8"
     BALANCED = "galileo"
     PRECISE = "h3precise,clgalileo"
 

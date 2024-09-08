@@ -41,10 +41,11 @@ KBLOB_HEADERS = {
     "X-Edge-Shopping-Flag": "0",
 }
 
-BUNDLE_VERSION = "1.1729.0"
+BUNDLE_VERSION = "1.1781.0"
 
 BING_CREATE_CONVERSATION_URL = f"https://copilot.microsoft.com/turing/conversation/create?bundleVersion={BUNDLE_VERSION}"
 BING_GET_CONVERSATIONS_URL = "https://copilot.microsoft.com/turing/conversation/chats"
+BING_DELETE_SINGLE_CONVERSATION_URL = "https://sydney.bing.com/sydney/DeleteSingleConversation"
 BING_CHATHUB_URL = "wss://sydney.bing.com/sydney/ChatHub"
 BING_KBLOB_URL = "https://copilot.microsoft.com/images/kblob"
 BING_BLOB_URL = "https://copilot.microsoft.com/images/blob?bcid="
