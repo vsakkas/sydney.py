@@ -8,18 +8,18 @@ readme = "README.md"
 packages = [{ include = "sydney" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-aiohttp = "^3.10.5"
-websockets = "^13.0.1"
+python = "^3.10"
+aiohttp = "^3.10.9"
+websockets = "^13.1"
 brotli = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"
-pytest = "^8.3.2"
+pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
 pytest-cov = "^5.0.0"
 thefuzz = { extras = ["speedup"], version = "^0.22.1" }
-ruff = "^0.6.4"
+ruff = "^0.6.9"
 
 [tool.poetry.group.ci.dependencies]
 pytest-rerunfailures = "^14.0"
