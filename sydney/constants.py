@@ -1,19 +1,4 @@
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.2478.97"
-
-CREATE_HEADERS = {
-    "Accept": "application/json",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://copilot.microsoft.com/",
-    "Sec-Ch-Ua": '"Microsoft Edge";v="124", "Chromium";v="124", "Not?A_Brand";v="8"',
-    "Sec-Ch-Ua-Mobile": "?0",
-    "Sec-Ch-Ua-Platform": "Windows",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "User-Agent": USER_AGENT,
-    "X-Edge-Shopping-Flag": "0",
-}
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.2792.79"
 
 CHATHUB_HEADERS = {
     "Accept-Encoding": "gzip, deflate, br",
