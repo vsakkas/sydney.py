@@ -7,9 +7,9 @@ from os import getenv
 from typing import AsyncGenerator
 from urllib import parse
 
-import websockets.client as websockets
+import websockets.legacy.client as websockets
 from aiohttp import ClientSession, FormData, TCPConnector
-from websockets.client import WebSocketClientProtocol
+from websockets.legacy.client import WebSocketClientProtocol
 
 from sydney.constants import (
     BING_BLOB_URL,
