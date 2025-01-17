@@ -7,9 +7,9 @@ from os import getenv
 from typing import AsyncGenerator
 from urllib import parse
 
-import websockets.legacy.client as websockets
+import websockets.asyncio.client as websockets
 from aiohttp import ClientSession, FormData, TCPConnector
-from websockets.legacy.client import WebSocketClientProtocol
+from websockets.asyncio.client import ClientConnection
 
 from sydney.constants import (
     BING_BLOB_URL,
@@ -94,7 +94,7 @@ class SydneyClient:
         self.invocation_id: int | None = None
         self.number_of_messages: int | None = None
         self.max_messages: int | None = None
-        self.wss_client: WebSocketClientProtocol | None = None
+        self.wss_client: ClientConnection | None = None
         self.session: ClientSession | None = None
 
     async def __aenter__(self) -> SydneyClient:
@@ -365,7 +365,7 @@ class SydneyClient:
         # Create a websocket connection with Copilot for sending and receiving messages.
         try:
             self.wss_client = await websockets.connect(
-                bing_chathub_url, extra_headers=CHATHUB_HEADERS, max_size=None
+                bing_chathub_url, additional_headers=CHATHUB_HEADERS, max_size=None
             )
         except TimeoutError:
             raise ConnectionTimeoutException(
@@ -786,7 +786,7 @@ class SydneyClient:
         """
         Close all connections to Copilot. Clear conversation information.
         """
-        if self.wss_client and not self.wss_client.closed:
+        if self.wss_client:
             await self.wss_client.close()
             self.wss_client = None
 
