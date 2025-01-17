@@ -20,6 +20,7 @@ pytest-asyncio = "^0.25.2"
 pytest-cov = "^6.0.0"
 thefuzz = { extras = ["speedup"], version = "^0.22.1" }
 ruff = "^0.9.2"
+pre-commit = "^4.0.1"
 
 [tool.poetry.group.ci.dependencies]
 pytest-rerunfailures = "^15.0"
