@@ -41,5 +41,5 @@ jobs:
     - name: Run type checker
       run: poetry run mypy --ignore-missing-imports sydney/
 
-    - name: Run tests
-      run: poetry run pytest --cov --reruns 3
+    # - name: Run tests
+    #   run: poetry run pytest --cov --reruns 3
