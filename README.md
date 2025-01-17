@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vsakkas/sydney.py/master/images/logo.svg" width="28px" /> Sydney.py
 
-[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.22.0)
+[![Latest Release](https://img.shields.io/github/v/release/vsakkas/sydney.py.svg)](https://github.com/vsakkas/sydney.py/releases/tag/v0.23.0)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Managed](https://img.shields.io/badge/managed-poetry-bluegreen.svg?color=blue)](https://github.com/python-poetry/poetry)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/vsakkas/sydney.py/blob/master/LICENSE)
@@ -24,7 +24,7 @@ Python Client for Copilot (formerly named Bing Chat), also known as Sydney.
 ## Requirements
 
 - Python 3.9 or newer
-- Microsoft account with access to [Copilot](https://copilot.microsoft.com/) *(optional)*
+- Microsoft account with access to [Copilot](https://edgeservices.bing.com/edgesvc/chat) *(optional)*
 
 ## Installation
 
@@ -50,7 +50,7 @@ poetry add sydney-py
 To use Sydney.py, you first need to extract all the cookies from the Copilot web page. These cookies are used to authenticate your requests to the Copilot API.
 
 To get the cookies, follow these steps on Microsoft Edge:
-- Go to the [Copilot web page](https://copilot.microsoft.com/).
+- Go to the [Copilot web page](https://edgeservices.bing.com/edgesvc/chat).
 - Open the developer tools in your browser (usually by pressing `F12` or right-clicking on the chat dialog and selecting `Inspect`).
 - Select the `Network` tab to view all requests sent to Copilot.
 - Write a message on the chat dialog that appears on the web page.
@@ -77,6 +77,9 @@ os.environ["BING_COOKIES"] = "<your-cookies>"
 
 > [!IMPORTANT]
 > For regions where a cookie is required, it is recommended to manually write messages to Copilot until a box containing a `Verifying` message appears, which should then switch to a `Success!` message. Without this step, it is possible that Sydney.py will fail with a `CaptchaChallenge` error.
+
+> [!IMPORTANT]
+> Copilot has been redesigned with a new, non-compatible API. Sydney currently uses https://edgeservices.bing.com/edgesvc/chat instead of https://copilot.microsoft.com as a workaround.
 
 ### Example
 

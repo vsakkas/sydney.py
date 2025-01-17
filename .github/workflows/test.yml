@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - master
-  schedule:
-    - cron: '0 15 * * 5'
 
 env:
   BING_COOKIES: ${{ secrets.BING_COOKIES }}

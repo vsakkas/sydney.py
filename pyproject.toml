@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sydney-py"
-version = "0.22.0"
+version = "0.23.0"
 description = "Python Client for Copilot (formerly named Bing Chat), also known as Sydney."
 authors = ["vsakkas <vasileios.sakkas96@gmail.com>"]
 license = "MIT"
@@ -9,20 +9,20 @@ packages = [{ include = "sydney" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-aiohttp = "^3.10.5"
-websockets = "^13.0.1"
+aiohttp = "^3.11.11"
+websockets = "^14.1"
 brotli = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.11.2"
-pytest = "^8.3.2"
-pytest-asyncio = "^0.24.0"
-pytest-cov = "^5.0.0"
+mypy = "^1.14.1"
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.2"
+pytest-cov = "^6.0.0"
 thefuzz = { extras = ["speedup"], version = "^0.22.1" }
-ruff = "^0.6.4"
+ruff = "^0.9.2"
 
 [tool.poetry.group.ci.dependencies]
-pytest-rerunfailures = "^14.0"
+pytest-rerunfailures = "^15.0"
 
 [build-system]
 requires = ["poetry-core"]
